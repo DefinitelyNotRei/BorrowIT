@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Current Loans - BorrowIT</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body data-page="current-loans">
+  <header class="site-header">
+    <div class="brand">BorrowIT</div>
+    <nav>
+      <a href="/equipment.html">Catalog</a>
+      <a href="/pending-requests.html">Pending Requests</a>
+      <a href="/history.html">History</a>
+      <a href="/account.html">Account</a>
+      <a id="logout-link" href="#">Logout</a>
+    </nav>
+  </header>
+
+  <main class="page-container">
+    <section>
+      <h1>Your Active Loans</h1>
+      <div id="current-loans-feedback" class="status-message"></div>
+      <div id="current-loans-list" class="grid-list"></div>
+    </section>
+  </main>
+  <script src="/js/app.js"></script>
+</body>
+</html>

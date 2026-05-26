@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login - BorrowIT</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body data-page="login">
+  <header class="site-header">
+    <div class="brand">BorrowIT</div>
+    <nav>
+      <a href="/register.html">Register</a>
+      <a href="/">Home</a>
+    </nav>
+  </header>
+
+  <main class="page-container">
+    <section class="form-card">
+      <h1>Sign In</h1>
+      <div id="login-feedback" class="status-message"></div>
+      <form id="login-form">
+        <label>Student ID
+          <input name="username" type="text" inputmode="numeric" pattern="[0-9]*" required>
+        </label>
+        <label>Password
+          <input name="password" type="password" required>
+        </label>
+        <button type="submit">Login</button>
+      </form>
+    </section>
+  </main>
+  <script src="/js/app.js"></script>
+</body>
+</html>
