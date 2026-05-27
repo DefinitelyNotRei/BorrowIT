@@ -392,7 +392,7 @@ public class AdminDashboardFrame extends Stage {
         searchButton.getStyleClass().add("secondary-button");
         Button refreshButton = new Button("Refresh");
         refreshButton.getStyleClass().add("secondary-button");
-        Button createAccountButton = new Button("Create Account");
+        Button createAccountButton = new Button("Create User");
         createAccountButton.getStyleClass().add("success-button");
         Button removeUserButton = new Button("Remove User");
         removeUserButton.getStyleClass().add("secondary-button");

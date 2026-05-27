@@ -45,6 +45,22 @@ If you want to use `exec:java`, the correct main class is `com.borrowit.Main`:
 mvn -Dexec.mainClass=com.borrowit.Main exec:java
 ```
 
+If you want to run the web portal instead of the desktop app, use the portal folder:
+
+```bash
+cd web-portal
+npm install
+npm start
+```
+
+Then open `http://localhost:3000` in your browser.
+
+If you want to run from a packaged JAR, the correct platform-specific JavaFX module path is:
+
+```bash
+mvn -Dexec.mainClass=com.borrowit.Main exec:java
+```
+
 If you want to run from a packaged JAR, use the platform-specific JavaFX module path instead of `java -jar`:
 
 ```powershell

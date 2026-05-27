@@ -26,7 +26,8 @@ A lightweight web portal for BorrowIT user workflows that shares the same MySQL 
 
 ## API Endpoints
 - `POST /api/login`
-- (no public registration endpoint; accounts are created by admins in the JavaFX admin app)
+- `POST /api/admin/users` (admin-only user creation)
+- (no public registration endpoint; user accounts are created by admins in the JavaFX admin portal or via the admin-only user creation endpoint)
 - `POST /api/logout`
 - `GET /api/user`
 - `GET /api/equipment`

@@ -42,7 +42,7 @@ public class UserLoginFrame extends Stage {
         setMaximized(true);
         setOnCloseRequest(event -> System.exit(0));
 
-        Label titleLabel = new Label("Student Application");
+        Label titleLabel = new Label("User Application");
         titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
 
         errorLabel.setWrapText(true);

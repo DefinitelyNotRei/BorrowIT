@@ -35,8 +35,29 @@ async function getCurrentUser() {
 async function requireGuestPage() {
   const user = await getCurrentUser();
   if (user) {
-    window.location.href = '/equipment.html';
+    if (user.role === 'ADMIN') {
+      window.location.href = '/admin.html';
+    } else {
+      window.location.href = '/equipment.html';
+    }
   }
+}
+
+async function initAuthenticatedPage(allowedRoles = ['USER', 'STUDENT']) {
+  const user = await getCurrentUser();
+  if (!user) {
+    window.location.href = '/login.html';
+    return null;
+  }
+  if (!allowedRoles.includes(user.role)) {
+    if (user.role === 'ADMIN') {
+      window.location.href = '/admin.html';
+      return null;
+    }
+    window.location.href = '/login.html';
+    return null;
+  }
+  return user;
 }
 
 async function logout() {
@@ -65,14 +86,18 @@ async function initLoginPage() {
     hideMessage('#login-feedback');
     const data = new FormData(form);
     try {
-      await requestJson('/api/login', {
+      const payload = await requestJson('/api/login', {
         method: 'POST',
         body: JSON.stringify({
           username: data.get('username'),
           password: data.get('password')
         })
       });
-      window.location.href = '/equipment.html';
+      if (payload.role === 'ADMIN') {
+        window.location.href = '/admin.html';
+      } else {
+        window.location.href = '/equipment.html';
+      }
     } catch (error) {
       showMessage('#login-feedback', error.message, 'error');
     }
@@ -81,6 +106,8 @@ async function initLoginPage() {
 
 
 async function initEquipmentPage() {
+  const user = await initAuthenticatedPage(['USER', 'STUDENT']);
+  if (!user) return;
   buildNavLogout();
   const feedback = '#equipment-feedback';
   const list = document.querySelector('#equipment-list');
@@ -141,6 +168,8 @@ async function initEquipmentPage() {
 }
 
 async function initCurrentLoansPage() {
+  const user = await initAuthenticatedPage(['USER', 'STUDENT']);
+  if (!user) return;
   buildNavLogout();
   const list = document.querySelector('#current-loans-list');
   const feedback = '#current-loans-feedback';
@@ -166,6 +195,8 @@ async function initCurrentLoansPage() {
 }
 
 async function initHistoryPage() {
+  const user = await initAuthenticatedPage(['USER', 'STUDENT']);
+  if (!user) return;
   buildNavLogout();
   const list = document.querySelector('#history-list');
   const feedback = '#history-feedback';
@@ -212,6 +243,8 @@ async function initHistoryPage() {
 }
 
 async function initPendingRequestsPage() {
+  const user = await initAuthenticatedPage(['USER', 'STUDENT']);
+  if (!user) return;
   buildNavLogout();
   const list = document.querySelector('#pending-list');
   const feedback = '#pending-feedback';
@@ -261,6 +294,8 @@ async function initPendingRequestsPage() {
 }
 
 async function initAccountPage() {
+  const user = await initAuthenticatedPage(['USER', 'STUDENT', 'ADMIN']);
+  if (!user) return;
   buildNavLogout();
   const info = document.querySelector('#user-info');
   const form = document.querySelector('#change-password-form');
@@ -268,16 +303,16 @@ async function initAccountPage() {
 
   try {
     const payload = await requestJson('/api/user');
-    const user = payload.user;
-    if (!user) {
+    const currentUser = payload.user;
+    if (!currentUser) {
       window.location.href = '/login.html';
       return;
     }
     info.innerHTML = `
-      <p><strong>Name:</strong> ${user.fullName}</p>
-      <p><strong>Email:</strong> ${user.email}</p>
-      <p><strong>User ID:</strong> ${user.username}</p>
-      <p><strong>Role:</strong> ${user.role}</p>
+      <p><strong>Name:</strong> ${currentUser.fullName}</p>
+      <p><strong>Email:</strong> ${currentUser.email}</p>
+      <p><strong>User ID:</strong> ${currentUser.username}</p>
+      <p><strong>Role:</strong> ${currentUser.role}</p>
     `;
   } catch (error) {
     showMessage(feedback, error.message, 'error');
@@ -304,13 +339,40 @@ async function initAccountPage() {
   });
 }
 
-async function initAuthenticatedPage() {
-  const user = await getCurrentUser();
-  if (!user) {
-    window.location.href = '/login.html';
-    return null;
-  }
-  return user;
+async function initAdminPage() {
+  const user = await initAuthenticatedPage(['ADMIN']);
+  if (!user) return;
+  buildNavLogout();
+  const form = document.querySelector('#create-user-form');
+  if (!form) return;
+
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    hideMessage('#admin-feedback');
+    const data = new FormData(form);
+    try {
+      await requestJson('/api/admin/users', {
+        method: 'POST',
+        body: JSON.stringify({
+          firstName: data.get('firstName'),
+          middleName: data.get('middleName'),
+          lastName: data.get('lastName'),
+          suffix: data.get('suffix'),
+          userId: data.get('userId'),
+          phoneNumber: data.get('phoneNumber'),
+          department: data.get('department'),
+          course: data.get('course'),
+          yearLevel: data.get('yearLevel'),
+          block: data.get('block'),
+          password: data.get('password')
+        })
+      });
+      showMessage('#admin-feedback', 'User account created successfully.', 'success');
+      form.reset();
+    } catch (error) {
+      showMessage('#admin-feedback', error.message, 'error');
+    }
+  });
 }
 
 async function runPage() {
@@ -319,7 +381,9 @@ async function runPage() {
   if (page === 'login') {
     return initLoginPage();
   }
-  // No public registration page; registration is admin-only.
+  if (page === 'admin') {
+    return initAdminPage();
+  }
 
   if (['equipment', 'pending-requests', 'current-loans', 'history', 'account'].includes(page)) {
     await initAuthenticatedPage();

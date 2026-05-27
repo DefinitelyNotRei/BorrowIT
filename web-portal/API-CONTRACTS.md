@@ -96,6 +96,25 @@ Response:
 Response:
 - `message` (string)
 
+## Admin
+
+### POST /api/admin/users
+Request body:
+- `firstName` (string)
+- `middleName` (string, optional)
+- `lastName` (string)
+- `suffix` (string, optional)
+- `userId` (string)
+- `phoneNumber` (string)
+- `department` (string)
+- `course` (string)
+- `yearLevel` (number)
+- `block` (string)
+- `password` (string)
+
+Response:
+- `message` (string)
+
 ## Password
 
 ### POST /api/change-password
@@ -108,6 +127,6 @@ Response:
 
 ## Notes
 All routes under `/api` that require authentication use session cookies.
-Account creation is handled by admin users in the JavaFX admin application; there is no public registration endpoint.
+Account creation is handled by admin users in the JavaFX admin application or via the admin-only `/api/admin/users` endpoint; there is no public registration endpoint.
 Only `USER` and `STUDENT` roles are allowed to login through the user portal.
 Admin-only workflows remain in the existing JavaFX app.

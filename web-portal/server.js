@@ -29,10 +29,28 @@ app.use(
 );
 
 app.use('/api', userRoutes);
+
+app.get('/admin.html', (req, res, next) => {
+  if (!req.session?.user) {
+    return res.redirect('/login.html');
+  }
+  if (req.session.user.role !== 'ADMIN') {
+    return res.redirect('/login.html');
+  }
+  return next();
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.get('/register.html', (req, res) => {
+  return res.redirect(301, '/login.html');
+});
+
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  if (path.extname(req.path)) {
+    return res.status(404).send('Not Found');
+  }
+  return res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.listen(PORT, () => {

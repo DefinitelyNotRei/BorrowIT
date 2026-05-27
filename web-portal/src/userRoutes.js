@@ -11,6 +11,13 @@ function requireAuth(req, res, next) {
   return res.status(401).json({ message: 'Authentication required.' });
 }
 
+function requireAdmin(req, res, next) {
+  if (req.session?.user?.role === 'ADMIN') {
+    return next();
+  }
+  return res.status(403).json({ message: 'Admin access required.' });
+}
+
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
@@ -24,7 +31,7 @@ router.post('/login', async (req, res) => {
   );
 
   const user = rows[0];
-  if (!user || !user.is_active || !['USER', 'STUDENT'].includes(user.role)) {
+  if (!user || !user.is_active || !['USER', 'STUDENT', 'ADMIN'].includes(user.role)) {
     return res.status(401).json({ message: 'Invalid credentials.' });
   }
 
@@ -49,7 +56,59 @@ router.post('/login', async (req, res) => {
   });
 });
 
-// Registration endpoint removed: account creation must be performed by admins via the desktop admin app.
+// Explicitly disable the public registration API.
+router.post('/register', (req, res) => {
+  return res.status(404).json({ message: 'Public registration is disabled.' });
+});
+
+// Admin-only user creation endpoint.
+router.post('/admin/users', requireAuth, requireAdmin, async (req, res) => {
+  const {
+    firstName,
+    middleName,
+    lastName,
+    suffix,
+    userId,
+    phoneNumber,
+    department,
+    course,
+    yearLevel,
+    block,
+    password
+  } = req.body;
+
+  if (!firstName || !lastName || !userId || !phoneNumber || !department || !course || !yearLevel || !block || !password) {
+    return res.status(400).json({ message: 'Missing required user fields.' });
+  }
+
+  if (!/^[0-9]+$/.test(userId)) {
+    return res.status(400).json({ message: 'User ID must be numeric.' });
+  }
+
+  if (!/^[0-9]{11}$/.test(phoneNumber)) {
+    return res.status(400).json({ message: 'Phone number must be 11 digits.' });
+  }
+
+  const fullName = [firstName.trim(), middleName?.trim(), lastName.trim(), suffix?.trim()]
+    .filter(Boolean)
+    .join(' ');
+  const email = `${userId}@gordoncollege.edu.ph`;
+  const passwordHash = hashPassword(password);
+
+  try {
+    await db.query(
+      'INSERT INTO users (full_name, username, email, branch, course, block, year_level, phone_number, password_hash, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [fullName, userId, email, department, course, block, parseInt(yearLevel, 10), phoneNumber, passwordHash, 'STUDENT']
+    );
+    return res.status(201).json({ message: 'User account created successfully.' });
+  } catch (error) {
+    if (error.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({ message: 'A user with the same user ID or email already exists.' });
+    }
+    console.error(error);
+    return res.status(500).json({ message: 'An error occurred while creating the user.' });
+  }
+});
 
 router.post('/logout', (req, res) => {
   req.session.destroy(err => {

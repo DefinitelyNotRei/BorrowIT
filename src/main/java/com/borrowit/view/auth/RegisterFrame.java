@@ -69,7 +69,7 @@ public class RegisterFrame extends Stage {
 
     public RegisterFrame(Stage owner, boolean isAdminMode) {
         this.isAdminMode = isAdminMode;
-        setTitle("BorrowIT - Register");
+        setTitle(isAdminMode ? "BorrowIT - Create User Account" : "BorrowIT - Register");
         setMaximized(true);
         setOnCloseRequest(event -> {
             if (!isAdminMode) {
@@ -85,7 +85,7 @@ public class RegisterFrame extends Stage {
         initializeCourseData();
         initializeFormFields();
 
-        Label titleLabel = new Label("Create User Account");
+        Label titleLabel = new Label(isAdminMode ? "Create User Account" : "Create User Account");
         titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
 
         errorLabel.setWrapText(true);
@@ -124,7 +124,7 @@ public class RegisterFrame extends Stage {
         formPanel.add(passwordHintLabel, 1, 12);
         branchField.setOnAction(event -> updateCourseField());
 
-        registerButton.setText("Confirm");
+        registerButton.setText(isAdminMode ? "Create User" : "Confirm");
         registerButton.getStyleClass().add("success-button");
         registerButton.setDefaultButton(true);
         backButton.setText("Cancel");
