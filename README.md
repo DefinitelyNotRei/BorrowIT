@@ -7,14 +7,6 @@ It includes two interfaces:
 - User Application for borrower login, equipment viewing, reservation requests, current borrowed items, status tracking, cancellation, and history.
 - Admin/Staff Application for login, dashboard, equipment management, reservation approval/decline, return processing, overdue tracking, and user/equipment search.
 
-## What's New
-
-- Added separate admin and borrower workflows in a single JavaFX application.
-- Improved reservation tracking with request approval, decline, and return processing.
-- Added overdue item monitoring and status updates for both borrowers and staff.
-- Added equipment search, user management, and admin dashboard tools for staff.
-- Improved authentication flow with distinct login paths for admin and user roles.
-
 ## Running the Application
 
 This project uses JavaFX and requires the JavaFX runtime at launch time. Use the Maven JavaFX plugin to run the app:
