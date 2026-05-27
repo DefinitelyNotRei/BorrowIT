@@ -61,8 +61,8 @@ public class UserLoginFrame extends Stage {
         formPanel.setAlignment(Pos.CENTER);
 
         userIdField.setPrefWidth(300);
-        userIdField.setPromptText("Student ID");
-        userIdField.setTooltip(new Tooltip("Enter your student ID (numbers only)."));
+        userIdField.setPromptText("User ID");
+        userIdField.setTooltip(new Tooltip("Enter your user ID (numbers only)."));
         userIdField.setTextFormatter(new TextFormatter<>(change -> {
             return change.getText().matches("[0-9]*") ? change : null;
         }));
@@ -102,7 +102,7 @@ public class UserLoginFrame extends Stage {
         HBox statusBar = new HBox(10, progressIndicator, statusLabel);
         statusBar.setAlignment(Pos.CENTER_LEFT);
 
-        formPanel.add(new Label("Student ID"), 0, 0);
+        formPanel.add(new Label("User ID"), 0, 0);
         formPanel.add(userIdField, 1, 0);
         formPanel.add(new Label("Password"), 0, 1);
         HBox passwordRow = new HBox(10, passwordField, passwordVisibleField, showPasswordCheckbox);

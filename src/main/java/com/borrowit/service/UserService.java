@@ -50,7 +50,7 @@ public class UserService {
             throw new ValidationException("Invalid email format.");
         }
         if (user.getBranch() == null || user.getBranch().trim().isEmpty()) {
-            throw new ValidationException("Branch is required.");
+            throw new ValidationException("Department is required.");
         }
         if (user.getCourse() == null || user.getCourse().trim().isEmpty()) {
             throw new ValidationException("Course is required.");

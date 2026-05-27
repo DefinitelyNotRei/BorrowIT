@@ -111,9 +111,9 @@ public class RegisterFrame extends Stage {
         addRow(formPanel, 1, "Middle Name", createFieldWithCheckbox(middleNameField, noMiddleNameCheckBox));
         addRow(formPanel, 2, "Last Name", lastNameField);
         addRow(formPanel, 3, "Suffix", createFieldWithCheckbox(suffixField, noSuffixCheckBox));
-        addRow(formPanel, 4, "Student ID", usernameField);
+        addRow(formPanel, 4, "User ID", usernameField);
         addRow(formPanel, 5, "Phone Number", phoneField);
-        addRow(formPanel, 6, "Branch", branchField);
+        addRow(formPanel, 6, "Department", branchField);
         addRow(formPanel, 7, "Course", courseField);
         addRow(formPanel, 8, "Year Level", yearLevelField);
         addRow(formPanel, 9, "Block", blockField);
@@ -160,7 +160,7 @@ public class RegisterFrame extends Stage {
 
     private void initializeFormFields() {
         branchField.getItems().addAll(
-                "Select a branch first",
+            "Select a department first",
                 "College of Computer Studies(CCS)",
                 "College of Business and Accountancy(CBA)",
                 "College of Education, Arts and Sciences(CEAS)",
@@ -170,7 +170,7 @@ public class RegisterFrame extends Stage {
         branchField.getSelectionModel().selectFirst();
 
         usernameField.setPromptText("e.g. 20210001");
-        usernameField.setTooltip(new Tooltip("Student email will be generated as StudentID@gordoncollege.edu.ph"));
+        usernameField.setTooltip(new Tooltip("User email will be generated as <UserID>@gordoncollege.edu.ph"));
         usernameField.setTextFormatter(new TextFormatter<>(createDigitFilter()));
         usernameField.getStyleClass().add("input-field");
         usernameField.textProperty().addListener((obs, oldVal, newVal) -> updateGeneratedPassword());
@@ -399,7 +399,7 @@ public class RegisterFrame extends Stage {
 
     private void updateCourseField() {
         String selectedBranch = branchField.getValue();
-        if (selectedBranch == null || selectedBranch.equals("Select a branch first")) {
+        if (selectedBranch == null || selectedBranch.equals("Select a department first")) {
             courseField.setDisable(true);
             courseField.getItems().setAll("Select a course");
             courseField.getSelectionModel().selectFirst();
@@ -446,8 +446,8 @@ public class RegisterFrame extends Stage {
                 String selectedCourse = courseField.getValue();
                 String selectedYearLevel = yearLevelField.getValue();
                 String phoneNumber = phoneField.getText();
-                if (selectedBranch == null || selectedBranch.equals("Select a branch first")) {
-                    throw new IllegalArgumentException("Please select your branch before registering.");
+                if (selectedBranch == null || selectedBranch.equals("Select a department first")) {
+                    throw new IllegalArgumentException("Please select your department before registering.");
                 }
                 if (selectedCourse == null || selectedCourse.equals("Select a course")) {
                     throw new IllegalArgumentException("Please select a valid course before registering.");

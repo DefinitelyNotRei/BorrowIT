@@ -200,13 +200,13 @@ public class AuthenticationService {
             throw new ValidationException("User ID must be at least 3 characters.");
         }
         if (!username.equals("admin") && !username.matches("\\d+")) {
-            throw new ValidationException("Student ID must contain only digits.");
+            throw new ValidationException("User ID must contain only digits.");
         }
         if (!EMAIL_PATTERN.matcher(email).matches()) {
             throw new ValidationException("Enter a valid email address.");
         }
         if (branch.isBlank()) {
-            throw new ValidationException("Branch is required.");
+            throw new ValidationException("Department is required.");
         }
         if (course.isBlank()) {
             throw new ValidationException("Course is required.");

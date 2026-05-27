@@ -79,40 +79,6 @@ async function initLoginPage() {
   });
 }
 
-async function initRegisterPage() {
-  const form = document.querySelector('#register-form');
-  if (!form) return;
-
-  await requireGuestPage();
-
-  form.addEventListener('submit', async event => {
-    event.preventDefault();
-    hideMessage('#register-feedback');
-    const data = new FormData(form);
-    try {
-      await requestJson('/api/register', {
-        method: 'POST',
-        body: JSON.stringify({
-          firstName: data.get('firstName'),
-          middleName: data.get('middleName'),
-          lastName: data.get('lastName'),
-          suffix: data.get('suffix'),
-          studentId: data.get('studentId'),
-          phoneNumber: data.get('phoneNumber'),
-          branch: data.get('branch'),
-          course: data.get('course'),
-          yearLevel: data.get('yearLevel'),
-          block: data.get('block'),
-          password: data.get('password')
-        })
-      });
-      showMessage('#register-feedback', 'Registration successful. Please login.', 'success');
-      form.reset();
-    } catch (error) {
-      showMessage('#register-feedback', error.message, 'error');
-    }
-  });
-}
 
 async function initEquipmentPage() {
   buildNavLogout();
@@ -183,7 +149,7 @@ async function initCurrentLoansPage() {
   try {
     const payload = await requestJson('/api/reservations/current');
     if (payload.reservations.length === 0) {
-      list.innerHTML = '<p>No active loans found.</p>';
+      list.innerHTML = '<p>No active borrowings found.</p>';
       return;
     }
     list.innerHTML = payload.reservations.map(item => `
@@ -310,7 +276,7 @@ async function initAccountPage() {
     info.innerHTML = `
       <p><strong>Name:</strong> ${user.fullName}</p>
       <p><strong>Email:</strong> ${user.email}</p>
-      <p><strong>Student ID:</strong> ${user.username}</p>
+      <p><strong>User ID:</strong> ${user.username}</p>
       <p><strong>Role:</strong> ${user.role}</p>
     `;
   } catch (error) {
@@ -353,9 +319,7 @@ async function runPage() {
   if (page === 'login') {
     return initLoginPage();
   }
-  if (page === 'register') {
-    return initRegisterPage();
-  }
+  // No public registration page; registration is admin-only.
 
   if (['equipment', 'pending-requests', 'current-loans', 'history', 'account'].includes(page)) {
     await initAuthenticatedPage();

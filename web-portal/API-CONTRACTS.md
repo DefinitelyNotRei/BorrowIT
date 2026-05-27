@@ -14,22 +14,7 @@ Response:
 - `email` (string)
 - `role` (string)
 
-### POST /api/register
-Request body:
-- `firstName` (string)
-- `middleName` (string, optional)
-- `lastName` (string)
-- `suffix` (string, optional)
-- `studentId` (string)
-- `phoneNumber` (string)
-- `branch` (string)
-- `course` (string)
-- `yearLevel` (string)
-- `block` (string)
-- `password` (string)
-
-Response:
-- `message` (string)
+<!-- Registration endpoint removed from the public user API. Account creation is admin-only via the JavaFX admin application. -->
 
 ### POST /api/logout
 Response:
@@ -122,7 +107,7 @@ Response:
 - `message` (string)
 
 ## Notes
-- All routes under `/api` that require authentication use session cookies.
-- User registration automatically generates `email` as `<studentId>@gordoncollege.edu.ph`.
-- Only `USER` and `STUDENT` roles are allowed to login through the user portal.
-- Admin-only workflows remain in the existing JavaFX app.
+All routes under `/api` that require authentication use session cookies.
+Account creation is handled by admin users in the JavaFX admin application; there is no public registration endpoint.
+Only `USER` and `STUDENT` roles are allowed to login through the user portal.
+Admin-only workflows remain in the existing JavaFX app.

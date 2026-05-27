@@ -49,54 +49,7 @@ router.post('/login', async (req, res) => {
   });
 });
 
-router.post('/register', async (req, res) => {
-  const {
-    firstName,
-    middleName,
-    lastName,
-    suffix,
-    studentId,
-    phoneNumber,
-    branch,
-    course,
-    yearLevel,
-    block,
-    password
-  } = req.body;
-
-  if (!firstName || !lastName || !studentId || !phoneNumber || !branch || !course || !yearLevel || !block || !password) {
-    return res.status(400).json({ message: 'Missing required registration fields.' });
-  }
-
-  if (!/^[0-9]+$/.test(studentId)) {
-    return res.status(400).json({ message: 'Student ID must be numeric.' });
-  }
-
-  if (!/^[0-9]{11}$/.test(phoneNumber)) {
-    return res.status(400).json({ message: 'Phone number must be 11 digits.' });
-  }
-
-  const fullName = [firstName.trim(), middleName?.trim(), lastName.trim(), suffix?.trim()]
-    .filter(Boolean)
-    .join(' ');
-  const email = `${studentId}@gordoncollege.edu.ph`;
-  const passwordHash = hashPassword(password);
-
-  try {
-    await db.query(
-      'INSERT INTO users (full_name, username, email, branch, course, block, year_level, phone_number, password_hash, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [fullName, studentId, email, branch, course, block, parseInt(yearLevel, 10), phoneNumber, passwordHash, 'STUDENT']
-    );
-
-    return res.status(201).json({ message: 'Registration complete. Please login.' });
-  } catch (error) {
-    if (error.code === 'ER_DUP_ENTRY') {
-      return res.status(409).json({ message: 'A user with the same student ID or email already exists.' });
-    }
-    console.error(error);
-    return res.status(500).json({ message: 'An error occurred while registering.' });
-  }
-});
+// Registration endpoint removed: account creation must be performed by admins via the desktop admin app.
 
 router.post('/logout', (req, res) => {
   req.session.destroy(err => {

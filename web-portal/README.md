@@ -3,11 +3,11 @@
 A lightweight web portal for BorrowIT user workflows that shares the same MySQL schema as the existing JavaFX admin app.
 
 ## Features
-- User registration and login
+- User login (account creation is admin-only)
 - Browse available equipment
 - Search equipment by name / asset tag / description
 - Submit reservation requests
-- View current approved loans
+- View current approved borrowings
 - View reservation history
 - Cancel pending reservation requests
 - Change password
@@ -26,7 +26,7 @@ A lightweight web portal for BorrowIT user workflows that shares the same MySQL 
 
 ## API Endpoints
 - `POST /api/login`
-- `POST /api/register`
+- (no public registration endpoint; accounts are created by admins in the JavaFX admin app)
 - `POST /api/logout`
 - `GET /api/user`
 - `GET /api/equipment`

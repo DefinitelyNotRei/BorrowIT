@@ -471,9 +471,9 @@ public class AdminDashboardFrame extends Stage {
     private void configureUsersTable() {
         TableColumn<User, ?> u1 = makeColumn("ID", 60, User::getUserId);
         TableColumn<User, ?> u2 = makeColumn("Full Name", 160, User::getFullName);
-        TableColumn<User, ?> u3 = makeColumn("Student ID", 120, User::getUsername);
+        TableColumn<User, ?> u3 = makeColumn("User ID", 120, User::getUsername);
         TableColumn<User, ?> u4 = makeColumn("Email", 180, User::getEmail);
-        TableColumn<User, ?> u5 = makeColumn("Branch", 140, User::getBranch);
+        TableColumn<User, ?> u5 = makeColumn("Department", 140, User::getBranch);
         TableColumn<User, ?> u6 = makeColumn("Course", 170, User::getCourse);
         TableColumn<User, ?> u7 = makeColumn("Block", 70, User::getBlock);
         TableColumn<User, ?> u8 = makeColumn("Role", 90, user -> user.getRole().name());
@@ -907,7 +907,7 @@ public class AdminDashboardFrame extends Stage {
         grid.add(suffixField, 1, 3);
         grid.add(new Label("Email:"), 0, 4);
         grid.add(emailField, 1, 4);
-        grid.add(new Label("Branch:"), 0, 5);
+        grid.add(new Label("Department:"), 0, 5);
         grid.add(branchField, 1, 5);
         grid.add(new Label("Course:"), 0, 6);
         grid.add(courseField, 1, 6);

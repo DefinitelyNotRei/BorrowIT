@@ -29,6 +29,7 @@ The same application launch command starts both interfaces. After startup, choos
 
 - `Admin`: Use the admin/staff login screen to access the dashboard, equipment management, reservation approvals, returns, overdue tracking, and search tools.
 - `User`: Use the borrower login screen to view available equipment, request reservations, track current loans, cancel requests, and view history.
+ - `User`: Use the borrower login screen to view available equipment, request reservations, track current borrowings, cancel requests, and view history.
 
 The role is determined by the credentials used at login. Make sure the database has the corresponding admin and user accounts seeded before login.
 
