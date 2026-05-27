@@ -98,6 +98,22 @@ button:hover {
 .card-grid {
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
+.feature-list {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+.feature-item {
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #d8e1ef;
+  padding: 1.25rem;
+}
+.feature-item h2 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+}
 .card,
 .equipment-card,
 .loan-card,
