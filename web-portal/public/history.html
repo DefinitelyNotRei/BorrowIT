@@ -4,23 +4,25 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Reservations and History - BorrowIT</title>
+  <link rel="stylesheet" href="/shared/css/official-theme.css">
+  <link rel="stylesheet" href="/shared/css/admin-styles.css">
   <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body data-page="history">
-  <header class="site-header">
+  <header class="site-header admin-header">
     <div class="brand">BorrowIT</div>
-    <nav>
+    <nav class="admin-nav">
       <a href="/equipment.html">Available Equipment</a>
       <a href="/pending-requests.html">Pending Requests</a>
       <a href="/current-loans.html">Current Borrowings</a>
       <a href="/history.html">Reservations and History</a>
       <a href="/account.html">Account</a>
-      <a id="logout-link" href="#">Logout</a>
     </nav>
+    <button id="profile-button" class="profile-button" aria-label="View profile"></button>
   </header>
 
-  <main class="page-container">
-    <section>
+  <main class="admin-page-content">
+    <section class="admin-card">
       <h1>Reservations and History</h1>
       <p>Review all reservation activity, including approved, cancelled, and returned equipment.</p>
       <div id="history-feedback" class="status-message"></div>

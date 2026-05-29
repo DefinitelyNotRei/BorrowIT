@@ -31,7 +31,8 @@ router.post('/login', async (req, res) => {
   );
 
   const user = rows[0];
-  if (!user || !user.is_active || !['USER', 'STUDENT', 'ADMIN'].includes(user.role)) {
+  const dbRole = String(user?.role || '').toUpperCase();
+  if (!user || !user.is_active || !['USER', 'STUDENT', 'ADMIN'].includes(dbRole)) {
     return res.status(401).json({ message: 'Invalid credentials.' });
   }
 
@@ -39,12 +40,18 @@ router.post('/login', async (req, res) => {
     return res.status(401).json({ message: 'Invalid credentials.' });
   }
 
+  if (!req.app.get('allowAdminLogin') && dbRole === 'ADMIN') {
+    return res.status(401).json({ message: 'Invalid credentials.' });
+  }
+
+  const normalizedRole = dbRole === 'STUDENT' ? 'USER' : dbRole;
+
   req.session.user = {
     id: user.user_id,
     fullName: user.full_name,
     username: user.username,
     email: user.email,
-    role: user.role
+    role: normalizedRole
   };
 
   return res.json({
@@ -52,62 +59,13 @@ router.post('/login', async (req, res) => {
     fullName: user.full_name,
     username: user.username,
     email: user.email,
-    role: user.role
+    role: normalizedRole
   });
 });
 
 // Explicitly disable the public registration API.
 router.post('/register', (req, res) => {
   return res.status(404).json({ message: 'Public registration is disabled.' });
-});
-
-// Admin-only user creation endpoint.
-router.post('/admin/users', requireAuth, requireAdmin, async (req, res) => {
-  const {
-    firstName,
-    middleName,
-    lastName,
-    suffix,
-    userId,
-    phoneNumber,
-    department,
-    course,
-    yearLevel,
-    block,
-    password
-  } = req.body;
-
-  if (!firstName || !lastName || !userId || !phoneNumber || !department || !course || !yearLevel || !block || !password) {
-    return res.status(400).json({ message: 'Missing required user fields.' });
-  }
-
-  if (!/^[0-9]+$/.test(userId)) {
-    return res.status(400).json({ message: 'User ID must be numeric.' });
-  }
-
-  if (!/^[0-9]{11}$/.test(phoneNumber)) {
-    return res.status(400).json({ message: 'Phone number must be 11 digits.' });
-  }
-
-  const fullName = [firstName.trim(), middleName?.trim(), lastName.trim(), suffix?.trim()]
-    .filter(Boolean)
-    .join(' ');
-  const email = `${userId}@gordoncollege.edu.ph`;
-  const passwordHash = hashPassword(password);
-
-  try {
-    await db.query(
-      'INSERT INTO users (full_name, username, email, branch, course, block, year_level, phone_number, password_hash, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [fullName, userId, email, department, course, block, parseInt(yearLevel, 10), phoneNumber, passwordHash, 'STUDENT']
-    );
-    return res.status(201).json({ message: 'User account created successfully.' });
-  } catch (error) {
-    if (error.code === 'ER_DUP_ENTRY') {
-      return res.status(409).json({ message: 'A user with the same user ID or email already exists.' });
-    }
-    console.error(error);
-    return res.status(500).json({ message: 'An error occurred while creating the user.' });
-  }
 });
 
 router.post('/logout', (req, res) => {
@@ -150,6 +108,16 @@ router.post('/reservations', requireAuth, async (req, res) => {
 
   if (!equipmentId) {
     return res.status(400).json({ message: 'Equipment id is required.' });
+  }
+
+  // Check for active penalties/overdues that block new reservations
+  const [blocking] = await db.query(
+    'SELECT overdue_id, penalty_end_date FROM overdues WHERE user_id = ? AND settled = 0 AND penalty_end_date IS NOT NULL AND penalty_end_date > NOW() LIMIT 1',
+    [userId]
+  );
+  if (blocking && blocking.length > 0) {
+    const block = blocking[0];
+    return res.status(403).json({ message: 'You have an active penalty. You cannot request new reservations until ' + new Date(block.penalty_end_date).toLocaleString(), blockedUntil: block.penalty_end_date });
   }
 
   const [equipmentRows] = await db.query('SELECT equipment_id, available_quantity, status FROM equipment WHERE equipment_id = ?', [equipmentId]);
@@ -207,6 +175,19 @@ router.get('/reservations/pending', requireAuth, async (req, res) => {
   );
 
   return res.json({ reservations: rows });
+});
+
+// User: list overdue incidents for the current user
+router.get('/overdues', requireAuth, async (req, res) => {
+  const userId = req.session.user.id;
+  const [rows] = await db.query(
+    `SELECT overdue_id, reservation_id, equipment_id, days_late, penalty_days, penalty_end_date, settled, settled_at, created_at
+     FROM overdues
+     WHERE user_id = ?
+     ORDER BY created_at DESC`,
+    [userId]
+  );
+  return res.json({ overdues: rows });
 });
 
 router.delete('/reservations/:id', requireAuth, async (req, res) => {

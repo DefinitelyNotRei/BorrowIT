@@ -116,7 +116,7 @@ button:hover {
 }
 .card,
 .equipment-card,
-.loan-card,
+.borrow-card,
 .history-card {
   padding: 1.3rem;
   border-radius: 14px;
@@ -125,12 +125,12 @@ button:hover {
 }
 .card h2,
 .equipment-card h2,
-.loan-card h2,
+.borrow-card h2,
 .history-card h2 {
   margin-top: 0;
 }
 .equipment-card p,
-.loan-card p,
+.borrow-card p,
 .history-card p {
   margin: 0.5rem 0;
   line-height: 1.5;
@@ -185,6 +185,100 @@ button:hover {
 .cancel-button:hover {
   background: #b21b13;
 }
+/* Official Theme - Login Layout */
+.login-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1f4b8b 0%, #2d5fa3 50%, #1a3a5c 100%);
+  display: flex;
+  align-items: stretch;
+}
+.login-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.login-info {
+  padding: 3rem 2.5rem;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.login-info h1 {
+  font-size: 2.2rem;
+  margin: 0 0 1rem 0;
+  font-weight: 700;
+}
+.login-info > p {
+  font-size: 1.1rem;
+  margin: 0 0 2.5rem 0;
+  opacity: 0.95;
+}
+.info-section {
+  margin-bottom: 2rem;
+}
+.info-section h2 {
+  font-size: 1.2rem;
+  margin: 0 0 0.6rem 0;
+  font-weight: 600;
+}
+.info-section p {
+  margin: 0;
+  font-size: 0.95rem;
+  opacity: 0.9;
+  line-height: 1.5;
+}
+.login-form-wrapper {
+  padding: 3rem 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f4f6fb;
+}
+.login-form {
+  width: 100%;
+  max-width: 380px;
+}
+.login-form h2 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-size: 1.6rem;
+}
+.login-form > p {
+  margin: 0 0 1.5rem 0;
+  color: #666;
+}
+.privacy-notice {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 1rem;
+  line-height: 1.4;
+}
+.site-footer {
+  background: #0f1621;
+  color: #aaa;
+  text-align: center;
+  padding: 1.5rem;
+  font-size: 0.9rem;
+  position: relative;
+  margin-top: 0;
+}
+.site-footer p {
+  margin: 0;
+}
+@media (max-width: 900px) {
+  .login-layout {
+    grid-template-columns: 1fr;
+  }
+  .login-form-wrapper {
+    padding: 2rem 1.5rem;
+  }
+  .login-info {
+    padding: 2rem 1.5rem;
+  }
+}
 @media (max-width: 720px) {
   .site-header {
     flex-direction: column;
@@ -192,5 +286,17 @@ button:hover {
   }
   .site-header nav {
     margin-top: 0.8rem;
+  }
+  .login-container {
+    min-height: auto;
+  }
+  .login-layout {
+    grid-template-columns: 1fr;
+  }
+  .login-info h1 {
+    font-size: 1.8rem;
+  }
+  .login-info > p {
+    font-size: 1rem;
   }
 }

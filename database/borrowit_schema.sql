@@ -85,3 +85,24 @@ CREATE INDEX idx_reservations_status ON reservations(status);
 CREATE INDEX idx_reservations_user_status ON reservations(user_id, status);
 CREATE INDEX idx_reservations_equipment_status ON reservations(equipment_id, status);
 CREATE INDEX idx_reservations_due_date ON reservations(due_date);
+
+-- Track overdue incidents separately so they remain visible after return
+CREATE TABLE IF NOT EXISTS overdues (
+    overdue_id INT AUTO_INCREMENT PRIMARY KEY,
+    reservation_id INT NOT NULL,
+    user_id INT NOT NULL,
+    equipment_id INT NOT NULL,
+    days_late INT NOT NULL DEFAULT 0,
+    penalty_days INT NOT NULL DEFAULT 0,
+    penalty_end_date DATETIME NULL,
+    settled TINYINT(1) NOT NULL DEFAULT 0,
+    settled_at DATETIME NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_overdues_reservation FOREIGN KEY (reservation_id) REFERENCES reservations(reservation_id) ON DELETE CASCADE,
+    CONSTRAINT fk_overdues_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    CONSTRAINT fk_overdues_equipment FOREIGN KEY (equipment_id) REFERENCES equipment(equipment_id) ON DELETE RESTRICT
+);
+
+CREATE INDEX idx_overdues_user ON overdues(user_id);
+CREATE INDEX idx_overdues_settled ON overdues(settled);

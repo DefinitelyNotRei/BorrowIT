@@ -4,20 +4,25 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Current Borrowings - BorrowIT</title>
+  <link rel="stylesheet" href="/shared/css/official-theme.css">
+  <link rel="stylesheet" href="/shared/css/admin-styles.css">
   <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body data-page="current-loans">
-  <header class="site-header">
+  <header class="site-header admin-header">
     <div class="brand">BorrowIT</div>
-    <nav>
-        <a href="/equipment.html">Available Equipment</a>
-        <a href="/pending-requests.html">Pending Requests</a>
-        <a href="/current-loans.html">Current Borrowings</a>
-        <a href="/history.html">Reservations and History</a>
+    <nav class="admin-nav">
+      <a href="/equipment.html">Available Equipment</a>
+      <a href="/pending-requests.html">Pending Requests</a>
+      <a href="/current-loans.html">Current Borrowings</a>
+      <a href="/history.html">Reservations and History</a>
+      <a href="/account.html">Account</a>
+    </nav>
+    <button id="profile-button" class="profile-button" aria-label="View profile"></button>
   </header>
 
-  <main class="page-container">
-    <section>
+  <main class="admin-page-content">
+    <section class="admin-card">
       <h1>Your Active Borrowings</h1>
       <div id="current-loans-feedback" class="status-message"></div>
       <div id="current-loans-list" class="grid-list"></div>

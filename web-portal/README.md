@@ -11,6 +11,7 @@ A lightweight web portal for BorrowIT user workflows that shares the same MySQL 
 - View reservation history
 - Cancel pending reservation requests
 - Change password
+- Admin portal for dashboard, equipment management, user management, approvals, and reports
 
 ## Installation
 1. Copy `.env.example` to `.env`
@@ -23,6 +24,8 @@ A lightweight web portal for BorrowIT user workflows that shares the same MySQL 
    npm start
    ```
 4. Open `http://localhost:3000`
+
+For admin login, open `http://localhost:3000/admin-login.html`
 
 ## API Endpoints
 - `POST /api/login`

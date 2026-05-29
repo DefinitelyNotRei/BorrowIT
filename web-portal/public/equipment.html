@@ -4,28 +4,30 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Available Equipment - BorrowIT</title>
+  <link rel="stylesheet" href="/shared/css/official-theme.css">
+  <link rel="stylesheet" href="/shared/css/admin-styles.css">
   <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body data-page="equipment">
-  <header class="site-header">
+  <header class="site-header admin-header">
     <div class="brand">BorrowIT</div>
-    <nav>
-        <a href="/equipment.html">Available Equipment</a>
-        <a href="/pending-requests.html">Pending Requests</a>
-        <a href="/current-loans.html">Current Borrowings</a>
-        <a href="/history.html">Reservations and History</a>
-        <a href="/account.html">Account</a>
-        <a id="logout-link" href="#">Logout</a>
-      </nav>
-    </header>
+    <nav class="admin-nav">
+      <a href="/equipment.html">Available Equipment</a>
+      <a href="/pending-requests.html">Pending Requests</a>
+      <a href="/current-loans.html">Current Borrowings</a>
+      <a href="/history.html">Reservations and History</a>
+      <a href="/account.html">Account</a>
+    </nav>
+    <button id="profile-button" class="profile-button" aria-label="View profile"></button>
+  </header>
 
-  <main class="page-container">
-    <section class="search-panel">
+  <main class="admin-page-content">
+    <section class="admin-card">
       <h1>Available Equipment</h1>
       <p>Search available equipment and submit reservation requests for pickup.</p>
     </section>
 
-    <section id="equipment-list" class="grid-list"></section>
+    <section id="equipment-list" class="admin-card grid-list"></section>
   </main>
   <script src="/js/app.js"></script>
 </body>

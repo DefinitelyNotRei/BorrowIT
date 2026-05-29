@@ -37,6 +37,8 @@ If you want to use `exec:java`, the correct main class is `com.borrowit.Main`:
 mvn -Dexec.mainClass=com.borrowit.Main exec:java
 ```
 
+## Web Portal
+
 If you want to run the web portal instead of the desktop app, use the portal folder:
 
 ```bash
@@ -45,7 +47,26 @@ npm install
 npm start
 ```
 
-Then open `http://localhost:3000` in your browser.
+### Accessing the Web Portal
+
+Once the server is running (default: `http://localhost:3000`), you can access both portals:
+
+**User Portal (Borrowers)**
+- URL: `http://localhost:3000/login.html` or `http://localhost:3000`
+- Login with user/student credentials
+- Features: Browse equipment, request reservations, track loans, view history
+
+**Admin Portal**
+- URL: `http://localhost:3000/admin-login.html`
+- Login with admin credentials
+- Features: Equipment management, reservation approvals, user management, reports
+
+### Default Test Credentials
+
+- **Admin Account**: Username: `admin` | Password: `Admin@123`
+- **Student Account**: Username: `202511319` | Password: `GCbalan`
+
+**Note**: Users are automatically redirected based on their role. If an admin tries to use the user login page, they will be prompted to use the admin login page instead.
 
 If you want to run from a packaged JAR, the correct platform-specific JavaFX module path is:
 

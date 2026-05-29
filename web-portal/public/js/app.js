@@ -32,14 +32,23 @@ async function getCurrentUser() {
   return payload.user || null;
 }
 
-async function requireGuestPage() {
+async function requireGuestPage(page) {
   const user = await getCurrentUser();
-  if (user) {
+  if (!user) return;
+
+  if (page === 'login') {
     if (user.role === 'ADMIN') {
-      window.location.href = '/admin.html';
-    } else {
-      window.location.href = '/equipment.html';
+      showMessage('#login-feedback', 'You are currently signed in as an admin. Please use the admin portal or logout before signing in as a user.', 'error');
+      return;
     }
+    window.location.href = '/equipment.html';
+    return;
+  }
+
+  if (user.role === 'ADMIN') {
+    window.location.href = '/admin/dashboard.html';
+  } else {
+    window.location.href = '/equipment.html';
   }
 }
 
@@ -49,9 +58,10 @@ async function initAuthenticatedPage(allowedRoles = ['USER', 'STUDENT']) {
     window.location.href = '/login.html';
     return null;
   }
+  await buildProfileButton();
   if (!allowedRoles.includes(user.role)) {
     if (user.role === 'ADMIN') {
-      window.location.href = '/admin.html';
+      window.location.href = '/admin/dashboard.html';
       return null;
     }
     window.location.href = '/login.html';
@@ -63,6 +73,24 @@ async function initAuthenticatedPage(allowedRoles = ['USER', 'STUDENT']) {
 async function logout() {
   await requestJson('/api/logout', { method: 'POST' });
   window.location.href = '/login.html';
+}
+
+async function buildProfileButton() {
+  const button = document.querySelector('#profile-button');
+  if (!button) return;
+  const user = await getCurrentUser();
+  button.addEventListener('click', event => {
+    event.preventDefault();
+    if (!user) {
+      window.location.href = '/login.html';
+      return;
+    }
+    if (user.role === 'ADMIN') {
+      window.location.href = '/admin/dashboard.html';
+      return;
+    }
+    window.location.href = '/account.html';
+  });
 }
 
 function buildNavLogout() {
@@ -79,7 +107,7 @@ async function initLoginPage() {
   const form = document.querySelector('#login-form');
   if (!form) return;
 
-  await requireGuestPage();
+  await requireGuestPage(document.body.dataset.page);
 
   form.addEventListener('submit', async event => {
     event.preventDefault();
@@ -93,8 +121,15 @@ async function initLoginPage() {
           password: data.get('password')
         })
       });
+
+      const page = document.body.dataset.page;
+      if (payload.role === 'ADMIN' && page !== 'admin-login') {
+        showMessage('#login-feedback', 'Please use the admin login page to sign in as an admin.', 'error');
+        return;
+      }
+
       if (payload.role === 'ADMIN') {
-        window.location.href = '/admin.html';
+        window.location.href = '/admin/dashboard.html';
       } else {
         window.location.href = '/equipment.html';
       }
@@ -182,7 +217,7 @@ async function initCurrentLoansPage() {
       return;
     }
     list.innerHTML = payload.reservations.map(item => `
-      <article class="loan-card">
+      <article class="borrow-card">
         <h2>${item.name}</h2>
         <p><strong>Tag:</strong> ${item.asset_tag}</p>
         <p><strong>Status:</strong> ${item.status}</p>
@@ -296,10 +331,17 @@ async function initPendingRequestsPage() {
 async function initAccountPage() {
   const user = await initAuthenticatedPage(['USER', 'STUDENT', 'ADMIN']);
   if (!user) return;
-  buildNavLogout();
   const info = document.querySelector('#user-info');
   const form = document.querySelector('#change-password-form');
+  const logoutButton = document.querySelector('#logout-account-button');
   const feedback = '#account-feedback';
+
+  if (logoutButton) {
+    logoutButton.addEventListener('click', event => {
+      event.preventDefault();
+      logout();
+    });
+  }
 
   try {
     const payload = await requestJson('/api/user');
@@ -314,6 +356,26 @@ async function initAccountPage() {
       <p><strong>User ID:</strong> ${currentUser.username}</p>
       <p><strong>Role:</strong> ${currentUser.role}</p>
     `;
+    // Load user-specific overdue incidents and show penalty info
+    try {
+      const overPayload = await requestJson('/api/overdues');
+      if (overPayload.overdues && overPayload.overdues.length > 0) {
+        const listHtml = overPayload.overdues.map(o => `
+          <div class="overdue-item">
+            <p><strong>Reservation:</strong> ${o.reservation_id} — <strong>Equipment:</strong> ${o.equipment_id}</p>
+            <p><strong>Days late:</strong> ${o.days_late} — <strong>Penalty days:</strong> ${o.penalty_days}</p>
+            <p><strong>Penalty end:</strong> ${o.penalty_end_date ? new Date(o.penalty_end_date).toLocaleDateString() : 'None'}</p>
+            <p><strong>Settled:</strong> ${o.settled ? 'Yes' : 'No'}</p>
+          </div>
+        `).join('');
+        const section = document.createElement('section');
+        section.className = 'admin-card';
+        section.innerHTML = `<h2>Overdue Records</h2>${listHtml}`;
+        info.parentNode.insertBefore(section, info.nextSibling);
+      }
+    } catch (e) {
+      // ignore if endpoint unavailable
+    }
   } catch (error) {
     showMessage(feedback, error.message, 'error');
   }
@@ -378,7 +440,7 @@ async function initAdminPage() {
 async function runPage() {
   const page = document.body.dataset.page;
 
-  if (page === 'login') {
+  if (page === 'login' || page === 'admin-login') {
     return initLoginPage();
   }
   if (page === 'admin') {
