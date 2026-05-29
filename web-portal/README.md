@@ -1,45 +1,56 @@
-# BorrowIT User Portal
+# BorrowIT Borrower Web Portal
 
-A lightweight web portal for BorrowIT user workflows that shares the same MySQL schema as the existing JavaFX admin app.
+Responsive borrower/student portal for equipment browsing, reservation requests, borrowed item tracking, reservation history, profile management, notifications, registration, and password recovery.
 
-## Features
-- User login (account creation is admin-only)
-- Browse available equipment
-- Search equipment by name / asset tag / description
-- Submit reservation requests
-- View current approved borrowings
-- View reservation history
-- Cancel pending reservation requests
-- Change password
-- Admin portal for dashboard, equipment management, user management, approvals, and reports
+Staff and admin workflows are not implemented in this portal. They remain in the standalone JavaFX desktop application.
 
-## Installation
-1. Copy `.env.example` to `.env`
-2. Install dependencies
-   ```bash
-   npm install
-   ```
-3. Run the portal
-   ```bash
-   npm start
-   ```
-4. Open `http://localhost:3000`
+## Run
 
-For admin login, open `http://localhost:3000/admin-login.html`
+```bash
+npm install
+npm start
+```
 
-## API Endpoints
-- `POST /api/login`
-- `POST /api/admin/users` (admin-only user creation)
-- (no public registration endpoint; user accounts are created by admins in the JavaFX admin portal or via the admin-only user creation endpoint)
-- `POST /api/logout`
-- `GET /api/user`
-- `GET /api/equipment`
-- `POST /api/reservations`
-- `GET /api/reservations/current`
-- `GET /api/reservations/history`
-- `DELETE /api/reservations/:id`
-- `POST /api/change-password`
+Open `http://localhost:3000`.
 
-## Notes
-- This portal uses the same `users`, `equipment`, and `reservations` tables as the existing JavaFX admin app.
-- Admin-only actions remain in the desktop JavaFX app.
+## Environment
+
+Copy `.env.example` to `.env` and set:
+
+- `SESSION_SECRET`
+- `DB_HOST`
+- `DB_PORT`
+- `DB_USER`
+- `DB_PASSWORD`
+- `DB_NAME`
+- `CORS_ORIGIN` only when serving the frontend from another origin
+- `NODE_ENV=production` for secure cookies and hidden development tokens
+
+## Database
+
+For a fresh database, run:
+
+```sql
+SOURCE database/borrowit_schema.sql;
+SOURCE database/borrowit_seed.sql;
+SOURCE database/borrowit_sample_data.sql;
+```
+
+For an existing database, run:
+
+```sql
+SOURCE database/borrowit_modernization_migration.sql;
+```
+
+## Current Implementation
+
+- Express REST API
+- MySQL shared with the JavaFX desktop application
+- Session-cookie authentication for borrower portal
+- PBKDF2 password hashing compatible with the JavaFX app
+- Rate limiting, Helmet CSP, input sanitization, parameterized SQL
+- Mobile-first academic portal UI with sidebar/topbar layout
+
+## Target Modernization Path
+
+The long-term target in `MODERNIZATION_BLUEPRINT.md` is a React/Vite/Tailwind frontend plus a Spring Boot API. This Express portal is the working borrower-only implementation that preserves the current JavaFX compatibility while the target stack is migrated.

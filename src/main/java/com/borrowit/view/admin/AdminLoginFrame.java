@@ -40,7 +40,7 @@ public class AdminLoginFrame extends Stage {
         setMaximized(true);
         setOnCloseRequest(event -> System.exit(0));
 
-        Label titleLabel = new Label("Admin/Staff Application");
+        Label titleLabel = new Label("Admin Application");
         titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
 
         VBox headerPanel = new VBox();
@@ -55,7 +55,7 @@ public class AdminLoginFrame extends Stage {
         formPanel.setAlignment(Pos.CENTER);
 
         userIdField.setPrefWidth(200);
-        userIdField.setTooltip(new Tooltip("Enter the admin or staff ID."));
+        userIdField.setTooltip(new Tooltip("Enter the admin ID."));
 
         passwordField.setPrefWidth(200);
         passwordField.setTooltip(new Tooltip("Enter your password."));

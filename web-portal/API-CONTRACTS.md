@@ -1,132 +1,180 @@
-# BorrowIT User Portal API Contracts
+# BorrowIT Borrower Portal API Contracts
+
+All endpoints are borrower/student only. Staff and admin workflows remain exclusively in the JavaFX desktop application.
+
+Base path: `/api`
 
 ## Authentication
 
-### POST /api/login
-Request body:
-- `username` (string)
-- `password` (string)
+### POST `/login`
+Request:
+- `username` string, student ID
+- `password` string
 
 Response:
-- `id` (number)
-- `fullName` (string)
-- `username` (string)
-- `email` (string)
-- `role` (string)
+- `id`, `fullName`, `username`, `email`, `branch`, `course`, `block`, `yearLevel`, `phoneNumber`, `role`
 
-<!-- Registration endpoint removed from the public user API. Account creation is admin-only via the JavaFX admin application. -->
+Notes:
+- Only `USER` and `STUDENT` roles can authenticate through the portal.
+- `ADMIN` accounts are not selected by the login query.
 
-### POST /api/logout
+### POST `/register`
+Request:
+- `fullName`
+- `username`
+- `email`
+- `phoneNumber`
+- `branch`
+- `course`
+- `block`
+- `yearLevel`
+- `password`
+
 Response:
-- `message` (string)
+- `message`
 
-### GET /api/user
+Notes:
+- Student self-registration is disabled for the borrower portal.
+- New accounts are created by administrators in the desktop application.
+
+### POST `/verify-email`
+Request:
+- `token`
+
 Response:
-- `user` (object|null)
+- `message`
+
+### POST `/forgot-password`
+Request:
+- `email`
+
+Response:
+- `message`
+- `devResetToken` outside production
+
+### POST `/reset-password`
+Request:
+- `token`
+- `newPassword`
+
+Response:
+- `message`
+
+### POST `/logout`
+Response:
+- `message`
+
+### GET `/user`
+Response:
+- `user` object or `null`
+
+## Dashboard
+
+### GET `/dashboard`
+Response:
+- `summary.pending`
+- `summary.borrowed`
+- `summary.overdue`
+- `summary.totalReservations`
+- `recent[]`
+- `dueSoon[]`
+
+## Profile
+
+### GET `/profile`
+Response:
+- `user`
+
+### PUT `/profile`
+Request:
+- `fullName`
+- `email`
+- `branch`
+- `course`
+- `block`
+- `yearLevel`
+- `phoneNumber`
+
+Response:
+- `message`
+- `user`
+
+### POST `/change-password`
+Request:
+- `currentPassword`
+- `newPassword`
+
+Response:
+- `message`
 
 ## Equipment
 
-### GET /api/equipment
-Query string:
-- `search` (string, optional)
+### GET `/equipment/categories`
+Response:
+- `categories[]`
+
+### GET `/equipment`
+Query:
+- `search`
+- `category`
+- `sort`: `name`, `category`, or `available_quantity`
+- `page`
+- `limit`
 
 Response:
-- `equipment` (array of objects)
-  - `equipment_id`
-  - `asset_tag`
-  - `name`
-  - `category`
-  - `description`
-  - `status`
-  - `total_quantity`
-  - `available_quantity`
+- `equipment[]`
+- `pagination`
+
+### GET `/equipment/:id`
+Response:
+- `equipment`
 
 ## Reservations
 
-### POST /api/reservations
-Request body:
-- `equipmentId` (number)
-- `quantity` (number)
-- `remarks` (string, optional)
+### POST `/reservations`
+Request:
+- `equipmentId`
+- `quantity`
+- `remarks` optional
 
 Response:
-- `message` (string)
+- `message`
+- `reservationId`
+- `referenceNumber`
 
-### GET /api/reservations/current
+### GET `/reservations/current`
 Response:
-- `reservations` (array of objects)
-  - `reservation_id`
-  - `equipment_id`
-  - `quantity`
-  - `status`
-  - `request_date`
-  - `due_date`
-  - `return_date`
-  - `name`
-  - `asset_tag`
+- `reservations[]`
 
-### GET /api/reservations/pending
+### GET `/reservations/pending`
 Response:
-- `reservations` (array of objects)
-  - `reservation_id`
-  - `equipment_id`
-  - `quantity`
-  - `status`
-  - `request_date`
-  - `remarks`
-  - `name`
-  - `asset_tag`
+- `reservations[]`
 
-### GET /api/reservations/history
+### GET `/reservations/history`
 Response:
-- `reservations` (array of objects)
-  - `reservation_id`
-  - `equipment_id`
-  - `quantity`
-  - `status`
-  - `request_date`
-  - `due_date`
-  - `return_date`
-  - `approved_at`
-  - `remarks`
-  - `name`
-  - `asset_tag`
+- `reservations[]`
 
-### DELETE /api/reservations/:id
+### GET `/reservations/:id/receipt`
 Response:
-- `message` (string)
+- `receipt`
 
-## Admin
-
-### POST /api/admin/users
-Request body:
-- `firstName` (string)
-- `middleName` (string, optional)
-- `lastName` (string)
-- `suffix` (string, optional)
-- `userId` (string)
-- `phoneNumber` (string)
-- `department` (string)
-- `course` (string)
-- `yearLevel` (number)
-- `block` (string)
-- `password` (string)
-
+### DELETE `/reservations/:id`
 Response:
-- `message` (string)
+- `message`
 
-## Password
+## Notifications And Overdues
 
-### POST /api/change-password
-Request body:
-- `currentPassword` (string)
-- `newPassword` (string)
-
+### GET `/notifications`
 Response:
-- `message` (string)
+- `notifications[]`
 
-## Notes
-All routes under `/api` that require authentication use session cookies.
-Account creation is handled by admin users in the JavaFX admin application or via the admin-only `/api/admin/users` endpoint; there is no public registration endpoint.
-Only `USER` and `STUDENT` roles are allowed to login through the user portal.
-Admin-only workflows remain in the existing JavaFX app.
+### GET `/overdues`
+Response:
+- `overdues[]`
+
+## Security Notes
+
+- Session cookie: `borrowit_sid`, `httpOnly`, `sameSite=lax`, secure in production.
+- Password hashing remains PBKDF2-compatible with the JavaFX app. A BCrypt migration should be coordinated across both clients.
+- Rate limiting is applied globally under `/api` and more strictly to `/api/login`.
+- SQL uses parameterized queries.

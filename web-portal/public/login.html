@@ -9,52 +9,42 @@
 </head>
 <body data-page="login">
   <a href="#main-content" class="skip-to-content">Skip to main content</a>
-  <header class="site-header">
-    <div class="brand">BorrowIT</div>
-  </header>
+  <main class="auth-page" id="main-content">
+    <section class="auth-panel">
+      <a class="portal-brand auth-brand" href="/login.html">
+        <span class="brand-mark">BI</span>
+        <span><strong>BorrowIT</strong><small>User Portal</small></span>
+      </a>
+      <div class="auth-copy">
+        <p class="eyebrow">Equipment Reservation System</p>
+        <h1>User Access</h1>
+        <p>Browse campus equipment, track approvals, and monitor borrowed items from one responsive portal.</p>
+      </div>
+      <div class="auth-stats">
+        <article><strong>24h</strong><span>Request expiry</span></article>
+        <article><strong>3d</strong><span>Due reminders</span></article>
+        <article><strong>1</strong><span>Borrower portal</span></article>
+      </div>
+    </section>
 
-  <main class="login-container" id="main-content">
-    <div class="login-layout">
-      <div class="login-info">
-        <h1>BorrowIT Equipment Portal</h1>
-        <p>Manage your equipment reservations and borrowings with ease.</p>
-        <div class="info-section">
-          <h2>Browse Equipment</h2>
-          <p>Explore available equipment items from our campus inventory and check real-time availability.</p>
-        </div>
-        <div class="info-section">
-          <h2>Request Reservations</h2>
-          <p>Submit equipment borrow requests, track approval status, and manage your active borrowings.</p>
-        </div>
-        <div class="info-section">
-          <h2>Track History</h2>
-          <p>View your complete borrowing history, current loans, and pending reservation requests.</p>
-        </div>
+    <section class="auth-card">
+      <h2>Sign In</h2>
+      <div id="login-feedback" class="status-message" role="alert" aria-live="polite" aria-atomic="true"></div>
+      <form id="login-form" class="form-grid" aria-label="User login form">
+        <label for="username">User ID
+          <input id="username" name="username" type="text" required autocomplete="username">
+        </label>
+        <label for="password">Password
+          <input id="password" name="password" type="password" required autocomplete="current-password">
+        </label>
+        <button type="submit">Login</button>
+      </form>
+      <div class="auth-links">
+        <a href="/forgot-password.html">Forgot password</a>
       </div>
-      <div class="login-form-wrapper">
-        <section class="form-card login-form">
-          <h2>User Sign In</h2>
-          <p>Enter your credentials to access the portal.</p>
-          <div id="login-feedback" class="status-message" role="alert" aria-live="polite" aria-atomic="true"></div>
-          <form id="login-form" aria-label="User login form">
-            <label for="username">User ID
-              <input id="username" name="username" type="text" required autocomplete="username" aria-required="true" aria-describedby="username-hint">
-              <span id="username-hint" class="field-hint">Enter your User ID</span>
-            </label>
-            <label for="password">Password
-              <input id="password" name="password" type="password" required autocomplete="current-password" aria-required="true" aria-describedby="password-hint">
-              <span id="password-hint" class="field-hint">Enter your password</span>
-            </label>
-            <button type="submit" aria-label="Login to your account">Login</button>
-          </form>
-          <p class="privacy-notice">By clicking the login button, you recognize the right of BorrowIT to process your information in accordance with applicable privacy policies.</p>
-        </section>
-      </div>
-    </div>
+      <p class="privacy-notice">Borrower portal only. New user accounts are created by administrators in the desktop application.</p>
+    </section>
   </main>
-  <footer class="site-footer">
-    <p>&copy; BorrowIT Equipment Management System. All rights reserved.</p>
-  </footer>
   <script src="/js/app.js"></script>
 </body>
 </html>

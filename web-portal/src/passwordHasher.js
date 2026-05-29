@@ -49,13 +49,6 @@ function validatePasswordStrength(password) {
     };
   }
 
-  if (result.sequence && result.sequence.length > 0) {
-    return {
-      valid: false,
-      message: 'Password contains common patterns or sequences. Please choose a more unique password.'
-    };
-  }
-
   return {
     valid: true,
     score: result.score,

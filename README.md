@@ -1,45 +1,43 @@
 # BorrowIT
 
-BorrowIT is a JavaFX and MySQL Equipment System.
+BorrowIT is being modernized into a hybrid equipment borrowing system:
 
-It includes two interfaces:
+- **BorrowIT Admin**: standalone JavaFX desktop application for staff operations.
+- **BorrowIT Borrower Web Portal**: responsive student portal in `web-portal`.
+- **Shared MySQL Database**: one source of truth for users, equipment, reservations, overdues, notifications, and audit data.
 
-- User Application for borrower login, equipment viewing, reservation requests, current borrowed items, status tracking, cancellation, and history.
-- Admin/Staff Application for login, dashboard, equipment management, reservation approval/decline, return processing, overdue tracking, and user/equipment search.
+The web portal is borrower/student only. Admin and staff workflows remain exclusively in the JavaFX desktop application.
 
-## Running the Application
+## Architecture
 
-This project uses JavaFX and requires the JavaFX runtime at launch time. Use the Maven JavaFX plugin to run the app:
+```text
+Student Web Portal
+  -> REST API
+  -> Shared MySQL Database
+  <- JavaFX Admin Desktop Application
+```
+
+The JavaFX admin application does not depend on the web portal.
+
+## Run The JavaFX Admin Application
 
 ```bash
 mvn javafx:run
 ```
 
-### Run as Admin or User
-
-The same application launch command starts both interfaces. After startup, choose the appropriate login type:
-
-- `Admin`: Use the admin/staff login screen to access the dashboard, equipment management, reservation approvals, returns, overdue tracking, and search tools.
-- `User`: Use the borrower login screen to view available equipment, request reservations, track current loans, cancel requests, and view history.
- - `User`: Use the borrower login screen to view available equipment, request reservations, track current borrowings, cancel requests, and view history.
-
-The role is determined by the credentials used at login. Make sure the database has the corresponding admin and user accounts seeded before login.
-
-If your Maven installation does not recognize the `javafx` prefix, run the plugin by full coordinate instead:
+If Maven does not recognize the `javafx` prefix:
 
 ```bash
 mvn org.openjfx:javafx-maven-plugin:0.0.8:run
 ```
 
-If you want to use `exec:java`, the correct main class is `com.borrowit.Main`:
+Or:
 
 ```bash
 mvn -Dexec.mainClass=com.borrowit.Main exec:java
 ```
 
-## Web Portal
-
-If you want to run the web portal instead of the desktop app, use the portal folder:
+## Run The Borrower Web Portal
 
 ```bash
 cd web-portal
@@ -47,37 +45,49 @@ npm install
 npm start
 ```
 
-### Accessing the Web Portal
+Open `http://localhost:3000`.
 
-Once the server is running (default: `http://localhost:3000`), you can access both portals:
+## Database
 
-**User Portal (Borrowers)**
-- URL: `http://localhost:3000/login.html` or `http://localhost:3000`
-- Login with user/student credentials
-- Features: Browse equipment, request reservations, track loans, view history
+Default local configuration:
 
-**Admin Portal**
-- URL: `http://localhost:3000/admin-login.html`
-- Login with admin credentials
-- Features: Equipment management, reservation approvals, user management, reports
+- Host: `localhost`
+- Port: `3306`
+- Database: `borrowit`
+- User: `root`
+- Password: empty
 
-### Default Test Credentials
+JavaFX configuration is in `src/main/resources/borrowit-db.properties`.
 
-- **Admin Account**: Username: `admin` | Password: `Admin@123`
-- **Student Account**: Username: `202511319` | Password: `GCbalan`
+Fresh setup:
 
-**Note**: Users are automatically redirected based on their role. If an admin tries to use the user login page, they will be prompted to use the admin login page instead.
-
-If you want to run from a packaged JAR, the correct platform-specific JavaFX module path is:
-
-```bash
-mvn -Dexec.mainClass=com.borrowit.Main exec:java
+```sql
+SOURCE database/borrowit_schema.sql;
+SOURCE database/borrowit_seed.sql;
+SOURCE database/borrowit_sample_data.sql;
 ```
 
-If you want to run from a packaged JAR, use the platform-specific JavaFX module path instead of `java -jar`:
+Existing database modernization:
+
+```sql
+SOURCE database/borrowit_modernization_migration.sql;
+```
+
+## Documentation
+
+- Modernization blueprint: `MODERNIZATION_BLUEPRINT.md`
+- Web API contracts: `web-portal/API-CONTRACTS.md`
+- Web portal notes: `web-portal/README.md`
+
+## Default Test Credentials
+
+- Admin account: username `admin`, password `Admin@123`
+- Student account: username `202511319`, password `GCbalan`
+
+## Packaged JAR Note
+
+If running from a packaged JAR, use the platform-specific JavaFX module path:
 
 ```powershell
 java --module-path "C:\path\to\javafx-sdk-20.0.2\lib" --add-modules javafx.controls,javafx.fxml -jar target/borrowit-1.0.0.jar
 ```
-
-Running `java -jar` directly without JavaFX modules will produce the error: `JavaFX runtime components are missing, and are required to run this application`.

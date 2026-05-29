@@ -5,35 +5,82 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Account - BorrowIT</title>
   <link rel="stylesheet" href="/shared/css/official-theme.css">
-  <link rel="stylesheet" href="/shared/css/admin-styles.css">
   <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body data-page="account">
-  <header class="site-header admin-header">
-    <div class="brand">BorrowIT</div>
-    <nav class="admin-nav">
-      <a href="/equipment.html">Available Equipment</a>
-      <a href="/pending-requests.html">Pending Requests</a>
-      <a href="/current-loans.html">Current Borrowings</a>
-      <a href="/history.html">Reservations and History</a>
-      <a href="/account.html">Account</a>
-    </nav>
-    <button id="profile-button" class="profile-button" aria-label="View profile"></button>
-  </header>
+  <a href="#main-content" class="skip-to-content">Skip to main content</a>
+  <div class="portal-shell">
+    <aside class="portal-sidebar" aria-label="Portal navigation">
+      <a class="portal-brand" href="/">
+        <span class="brand-mark">BI</span>
+        <span><strong>BorrowIT</strong><small>User Portal</small></span>
+      </a>
+      <nav class="portal-nav">
+        <a href="/">Dashboard</a>
+        <a href="/equipment.html">Equipment</a>
+        <a href="/pending-requests.html">Pending</a>
+        <a href="/current-loans.html">Borrowed</a>
+        <a href="/history.html">History</a>
+        <a href="/account.html" aria-current="page">Account</a>
+      </nav>
+      <a href="#" id="logout-link" class="logout-link">Logout</a>
+    </aside>
 
-  <main class="admin-page-content">
-    <section class="admin-card form-card">
-      <h1>Account Settings</h1>
-      <div id="account-feedback" class="status-message"></div>
-      <div id="user-info"></div>
-      <form id="change-password-form">
-        <label>Current Password<input name="currentPassword" type="password" required></label>
-        <label>New Password<input name="newPassword" type="password" required></label>
-        <button type="submit">Change Password</button>
-      </form>
-      <button id="logout-account-button" class="secondary-button">Logout</button>
-    </section>
-  </main>
+    <div class="portal-workspace">
+      <header class="portal-topbar">
+        <div>
+          <p class="eyebrow">User Profile</p>
+          <h1>Account</h1>
+        </div>
+        <div class="topbar-actions">
+          <button id="logout-account-button" class="secondary-button">Logout</button>
+          <button id="profile-button" class="profile-button" aria-label="View profile"></button>
+        </div>
+      </header>
+
+      <main class="portal-page-content" id="main-content">
+        <div id="account-feedback" class="status-message" role="alert" aria-live="polite"></div>
+        <section class="content-grid two-column">
+          <article class="portal-card">
+            <div class="section-heading">
+              <h2>Profile</h2>
+              <span class="count-pill">Phone only</span>
+            </div>
+            <p class="section-note">For security and identity integrity, only the phone number may be updated here.</p>
+            <form id="profile-form" class="form-grid">
+              <label>Full Name<input name="fullName" type="text" readonly></label>
+              <label>User ID<input name="username" type="text" readonly></label>
+              <label>Email<input name="email" type="email" readonly></label>
+              <label>Department<input name="branch" type="text" readonly></label>
+              <label>Course<input name="course" type="text" readonly></label>
+              <label>Block<input name="block" type="text" maxlength="1" readonly></label>
+              <label>Year Level<input name="yearLevel" type="number" min="1" max="4" readonly></label>
+              <label>Phone<input name="phoneNumber" type="tel" required></label>
+              <button type="submit">Save Profile</button>
+            </form>
+          </article>
+
+          <article class="portal-card">
+            <div class="section-heading">
+              <h2>Password</h2>
+            </div>
+            <form id="change-password-form" class="form-grid">
+              <label>Current Password<input name="currentPassword" type="password" required autocomplete="current-password"></label>
+              <label>New Password<input name="newPassword" type="password" required autocomplete="new-password"></label>
+              <button type="submit">Change Password</button>
+            </form>
+          </article>
+        </section>
+
+        <section class="portal-card">
+          <div class="section-heading">
+            <h2>Overdue Records</h2>
+          </div>
+          <div id="overdue-list" class="stack-list"></div>
+        </section>
+      </main>
+    </div>
+  </div>
   <script src="/js/app.js"></script>
 </body>
 </html>

@@ -8,7 +8,6 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const { sanitizeMiddleware } = require('./src/sanitizer');
 const userRoutes = require('./src/userRoutes');
-const adminRoutes = require('./src/adminRoutes');
 
 dotenv.config();
 
@@ -16,7 +15,6 @@ const PORT = process.env.PORT || 3000;
 const staticRoot = path.join(__dirname, 'public');
 
 const app = express();
-app.set('allowAdminLogin', true);
 
 // Enhanced Content Security Policy
 app.use(helmet.contentSecurityPolicy({
@@ -33,12 +31,14 @@ app.use(helmet.contentSecurityPolicy({
   },
 }));
 
-app.use(cors({
-  origin: process.env.CORS_ORIGIN || '*',
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+if (process.env.CORS_ORIGIN) {
+  app.use(cors({
+    origin: process.env.CORS_ORIGIN,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+  }));
+}
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -78,16 +78,11 @@ app.use(session({
   }
 }));
 
-app.use('/api/admin', adminRoutes);
 app.use('/api', userRoutes);
 app.use(express.static(staticRoot));
 
-app.get(['/login.html', '/admin-login.html', '/admin.html'], (req, res) => {
-  return res.sendFile(path.join(staticRoot, path.basename(req.path)));
-});
-
-app.get('/register.html', (req, res) => {
-  return res.redirect(301, '/login.html');
+app.get('/login.html', (req, res) => {
+  return res.sendFile(path.join(staticRoot, 'login.html'));
 });
 
 app.get('*', (req, res) => {

@@ -3,41 +3,92 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>BorrowIT User Portal</title>
+  <title>Dashboard - BorrowIT</title>
   <link rel="stylesheet" href="/shared/css/official-theme.css">
   <link rel="stylesheet" href="/css/styles.css">
 </head>
-<body data-page="index">
-  <header class="site-header">
-    <div class="brand">BorrowIT</div>
-  </header>
+<body data-page="dashboard">
+  <a href="#main-content" class="skip-to-content">Skip to main content</a>
+  <div class="portal-shell">
+    <aside class="portal-sidebar" aria-label="Portal navigation">
+      <a class="portal-brand" href="/">
+        <span class="brand-mark">BI</span>
+        <span>
+          <strong>BorrowIT</strong>
+          <small>User Portal</small>
+        </span>
+      </a>
+      <nav class="portal-nav">
+        <a href="/" aria-current="page">Dashboard</a>
+        <a href="/equipment.html">Equipment</a>
+        <a href="/pending-requests.html">Pending</a>
+        <a href="/current-loans.html">Borrowed</a>
+        <a href="/history.html">History</a>
+        <a href="/account.html">Account</a>
+      </nav>
+      <a href="#" id="logout-link" class="logout-link">Logout</a>
+    </aside>
 
-  <main class="page-container">
-    <section>
-      <h1>BorrowIT User Portal</h1>
-      <p>BorrowIT is an equipment reservation system for users and staff. Use the portal to browse available items, submit borrow requests, and track current borrowings and reservation history.</p>
-      <div class="feature-list">
-        <div class="feature-item">
-          <h2>Equipment reservation</h2>
-          <p>Search and request available equipment from the school inventory.</p>
+    <div class="portal-workspace">
+      <header class="portal-topbar">
+        <div>
+          <p class="eyebrow">Borrower Workspace</p>
+          <h1>Dashboard</h1>
         </div>
-        <div class="feature-item">
-          <h2>Borrow tracking</h2>
-          <p>View current borrowings, pending requests, and reservation history in one place.</p>
+        <div class="topbar-actions">
+          <button class="icon-button" id="notification-button" aria-label="Notifications">!</button>
+          <button id="profile-button" class="profile-button" aria-label="View profile"></button>
         </div>
-        <div class="feature-item">
-          <h2>Admin portal</h2>
-          <p>Admins can sign in separately to manage users, equipment, and approvals.</p>
-        </div>
-      </div>
-      <div class="note-card">
-        <p>Users can use this portal to borrow equipment with ease.</p>
-      </div>
-      <div class="cta-group">
-        <a class="primary-button" href="/login.html">User Login</a>
-        <a class="secondary-button" href="/admin-login.html">Admin Login</a>
-      </div>
-    </section>
-  </main>
+      </header>
+
+      <main class="portal-page-content" id="main-content">
+        <section class="summary-grid" aria-label="Reservation summary">
+          <article class="metric-card">
+            <span class="metric-label">Pending</span>
+            <strong id="metric-pending">0</strong>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Borrowed</span>
+            <strong id="metric-borrowed">0</strong>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Overdue</span>
+            <strong id="metric-overdue">0</strong>
+          </article>
+          <article class="metric-card accent-card">
+            <span class="metric-label">All Requests</span>
+            <strong id="metric-total">0</strong>
+          </article>
+        </section>
+
+        <section class="content-grid two-column">
+          <article class="portal-card">
+            <div class="section-heading">
+              <h2>Recent Activity</h2>
+              <a href="/history.html">View all</a>
+            </div>
+            <div id="recent-activity" class="stack-list"></div>
+          </article>
+
+          <article class="portal-card">
+            <div class="section-heading">
+              <h2>Due Soon</h2>
+              <a href="/current-loans.html">Borrowed items</a>
+            </div>
+            <div id="due-soon-list" class="stack-list"></div>
+          </article>
+        </section>
+
+        <section class="portal-card">
+          <div class="section-heading">
+            <h2>Notifications</h2>
+            <span id="notification-count" class="count-pill">0</span>
+          </div>
+          <div id="notification-list" class="stack-list"></div>
+        </section>
+      </main>
+    </div>
+  </div>
+  <script src="/js/app.js"></script>
 </body>
 </html>

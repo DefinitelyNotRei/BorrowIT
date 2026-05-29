@@ -1,7 +1,6 @@
 package com.borrowit.view;
 
 import com.borrowit.view.admin.AdminLoginFrame;
-import com.borrowit.view.auth.UserLoginFrame;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -13,41 +12,32 @@ import javafx.stage.Stage;
 
 public class MainLauncherFrame extends Stage {
     public MainLauncherFrame() {
-        setTitle("BorrowIT");
+        setTitle("BorrowIT Admin Console");
         setWidth(500);
-        setHeight(360);
+        setHeight(320);
         setOnCloseRequest(event -> System.exit(0));
         centerOnScreen();
 
-        Label titleLabel = new Label("BorrowIT");
+        Label titleLabel = new Label("BorrowIT Admin Console");
         titleLabel.getStyleClass().add("title-label");
 
-        Label subtitleLabel = new Label("Equipment Reservation System");
+        Label subtitleLabel = new Label("Admin Desktop Application");
         subtitleLabel.getStyleClass().add("subtitle-label");
 
         VBox headerPanel = new VBox(6, titleLabel, subtitleLabel);
         headerPanel.setPadding(new Insets(18, 16, 6, 16));
         headerPanel.setAlignment(Pos.CENTER);
 
-        Button userButton = new Button("Open User Application");
-        userButton.setPrefWidth(250);
-        userButton.setPrefHeight(40);
-        userButton.getStyleClass().add("primary-button");
-        userButton.setOnAction(event -> {
-            new UserLoginFrame().show();
-            close();
-        });
-
-        Button adminButton = new Button("Open Admin/Staff Application");
+        Button adminButton = new Button("Open Admin Application");
         adminButton.setPrefWidth(250);
         adminButton.setPrefHeight(40);
-        adminButton.getStyleClass().add("secondary-button");
+        adminButton.getStyleClass().add("primary-button");
         adminButton.setOnAction(event -> {
             new AdminLoginFrame().show();
             close();
         });
 
-        VBox buttonPanel = new VBox(8, userButton, adminButton);
+        VBox buttonPanel = new VBox(8, adminButton);
         buttonPanel.setPadding(new Insets(8, 50, 20, 50));
         buttonPanel.setAlignment(Pos.CENTER);
 

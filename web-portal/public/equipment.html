@@ -3,52 +3,73 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Available Equipment - BorrowIT</title>
+  <title>Equipment - BorrowIT</title>
   <link rel="stylesheet" href="/shared/css/official-theme.css">
-  <link rel="stylesheet" href="/shared/css/admin-styles.css">
   <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body data-page="equipment">
   <a href="#main-content" class="skip-to-content">Skip to main content</a>
-  <header class="site-header admin-header">
-    <div class="brand">BorrowIT</div>
-    <nav class="admin-nav">
-      <a href="/equipment.html">Available Equipment</a>
-      <a href="/pending-requests.html">Pending Requests</a>
-      <a href="/current-loans.html">Current Borrowings</a>
-      <a href="/history.html">Reservations and History</a>
-      <a href="/account.html">Account</a>
-    </nav>
-    <button id="profile-button" class="profile-button" aria-label="View profile"></button>
-  </header>
+  <div class="portal-shell">
+    <aside class="portal-sidebar" aria-label="Portal navigation">
+      <a class="portal-brand" href="/">
+        <span class="brand-mark">BI</span>
+        <span><strong>BorrowIT</strong><small>User Portal</small></span>
+      </a>
+      <nav class="portal-nav">
+        <a href="/">Dashboard</a>
+        <a href="/equipment.html" aria-current="page">Equipment</a>
+        <a href="/pending-requests.html">Pending</a>
+        <a href="/current-loans.html">Borrowed</a>
+        <a href="/history.html">History</a>
+        <a href="/account.html">Account</a>
+      </nav>
+      <a href="#" id="logout-link" class="logout-link">Logout</a>
+    </aside>
 
-  <main class="admin-page-content" id="main-content">
-    <section class="admin-card">
-      <h1>Available Equipment</h1>
-      <p>Search available equipment and submit reservation requests for pickup.</p>
-      <div class="search-filters">
-        <div class="filter-group">
-          <label for="search-input">Search</label>
-          <input type="text" id="search-input" placeholder="Search by name, tag, or description" aria-label="Search equipment">
+    <div class="portal-workspace">
+      <header class="portal-topbar">
+        <div>
+          <p class="eyebrow">Inventory Catalog</p>
+          <h1>Equipment</h1>
         </div>
-        <div class="filter-group">
-          <label for="category-filter">Category</label>
-          <select id="category-filter" aria-label="Filter by category">
-            <option value="">All Categories</option>
-            <option value="Sports">Sports</option>
-            <option value="Electronics">Electronics</option>
-            <option value="Laboratory">Laboratory</option>
-            <option value="Office">Office</option>
-            <option value="Other">Other</option>
-          </select>
+        <div class="topbar-actions">
+          <a class="secondary-button" href="/pending-requests.html">Pending</a>
+          <button id="profile-button" class="profile-button" aria-label="View profile"></button>
         </div>
-        <button id="search-button" aria-label="Apply filters">Search</button>
-        <button id="clear-filters" aria-label="Clear filters">Clear</button>
-      </div>
-    </section>
+      </header>
 
-    <section id="equipment-list" class="admin-card grid-list"></section>
-  </main>
+      <main class="portal-page-content" id="main-content">
+        <section class="portal-card filter-card">
+          <div class="search-filters">
+            <label>
+              Search
+              <input type="text" id="search-input" placeholder="Name, tag, category">
+            </label>
+            <label>
+              Category
+              <select id="category-filter">
+                <option value="">All categories</option>
+              </select>
+            </label>
+            <label>
+              Sort
+              <select id="sort-filter">
+                <option value="name">Name</option>
+                <option value="category">Category</option>
+                <option value="available_quantity">Availability</option>
+              </select>
+            </label>
+            <button id="search-button">Search</button>
+            <button id="clear-filters" class="secondary-button">Clear</button>
+          </div>
+          <div id="equipment-feedback" class="status-message" role="alert" aria-live="polite"></div>
+        </section>
+
+        <section id="equipment-list" class="equipment-grid" aria-label="Available equipment"></section>
+        <nav id="pagination-controls" class="pagination-controls" aria-label="Equipment pages"></nav>
+      </main>
+    </div>
+  </div>
   <script src="/js/app.js"></script>
 </body>
 </html>

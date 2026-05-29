@@ -1,5 +1,7 @@
 # BorrowIT System - Comprehensive Improvement Plan
 
+> Superseded architecture note: the current instructor requirement is a hybrid system where the JavaFX admin/staff application remains standalone and the borrower module becomes a web portal. See `MODERNIZATION_BLUEPRINT.md` for the active architecture and implementation plan. Any older recommendation in this file about moving admin workflows into the web portal should be treated as historical analysis, not the current target.
+
 ## Implementation Status (Updated May 29, 2026)
 
 ### ✅ Completed Improvements
