@@ -1,6 +1,7 @@
 const express = require('express');
 const db = require('./db');
-const { hashPassword, verifyPassword } = require('./passwordHasher');
+const { hashPassword, verifyPassword, validatePasswordStrength } = require('./passwordHasher');
+const { recordFailedAttempt, isLockedOut, clearFailedAttempts, getRemainingAttempts } = require('./authLimiter');
 
 const router = express.Router();
 
@@ -20,9 +21,20 @@ function requireAdmin(req, res, next) {
 
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
+  const ip = req.ip || req.connection.remoteAddress;
 
   if (!username || !password) {
     return res.status(400).json({ message: 'Username and password are required.' });
+  }
+
+  // Check if account is locked out
+  const lockoutStatus = isLockedOut(ip, username);
+  if (lockoutStatus) {
+    return res.status(429).json({ 
+      message: `Account locked due to too many failed attempts. Please try again in ${lockoutStatus.remainingTime} minutes.`,
+      locked: true,
+      remainingTime: lockoutStatus.remainingTime
+    });
   }
 
   const [rows] = await db.query(
@@ -33,12 +45,25 @@ router.post('/login', async (req, res) => {
   const user = rows[0];
   const dbRole = String(user?.role || '').toUpperCase();
   if (!user || !user.is_active || !['USER', 'STUDENT', 'ADMIN'].includes(dbRole)) {
-    return res.status(401).json({ message: 'Invalid credentials.' });
+    recordFailedAttempt(ip, username);
+    const remaining = getRemainingAttempts(ip, username);
+    return res.status(401).json({ 
+      message: 'Invalid credentials.',
+      remainingAttempts: remaining
+    });
   }
 
   if (!verifyPassword(password, user.password_hash)) {
-    return res.status(401).json({ message: 'Invalid credentials.' });
+    recordFailedAttempt(ip, username);
+    const remaining = getRemainingAttempts(ip, username);
+    return res.status(401).json({ 
+      message: 'Invalid credentials.',
+      remainingAttempts: remaining
+    });
   }
+
+  // Clear failed attempts on successful login
+  clearFailedAttempts(ip, username);
 
   if (!req.app.get('allowAdminLogin') && dbRole === 'ADMIN') {
     return res.status(401).json({ message: 'Invalid credentials.' });
@@ -87,6 +112,10 @@ router.get('/user', (req, res) => {
 
 router.get('/equipment', requireAuth, async (req, res) => {
   const search = req.query.search?.trim();
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 20;
+  const offset = (page - 1) * limit;
+
   const where = ['status = ?', 'available_quantity > 0'];
   const params = ['AVAILABLE'];
 
@@ -95,11 +124,30 @@ router.get('/equipment', requireAuth, async (req, res) => {
     params.push(`%${search}%`, `%${search}%`, `%${search}%`);
   }
 
-  const [rows] = await db.query(
-    `SELECT equipment_id, asset_tag, name, category, description, status, total_quantity, available_quantity FROM equipment WHERE ${where.join(' AND ')} ORDER BY name ASC`,
+  // Get total count for pagination
+  const [countResult] = await db.query(
+    `SELECT COUNT(*) as total FROM equipment WHERE ${where.join(' AND ')}`,
     params
   );
-  return res.json({ equipment: rows });
+  const total = countResult[0].total;
+
+  // Get paginated results
+  const [rows] = await db.query(
+    `SELECT equipment_id, asset_tag, name, category, description, status, total_quantity, available_quantity FROM equipment WHERE ${where.join(' AND ')} ORDER BY name ASC LIMIT ? OFFSET ?`,
+    [...params, limit, offset]
+  );
+
+  return res.json({
+    equipment: rows,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+      hasNext: page < Math.ceil(total / limit),
+      hasPrev: page > 1
+    }
+  });
 });
 
 router.post('/reservations', requireAuth, async (req, res) => {
@@ -218,6 +266,12 @@ router.post('/change-password', requireAuth, async (req, res) => {
 
   if (!currentPassword || !newPassword) {
     return res.status(400).json({ message: 'Current and new password are required.' });
+  }
+
+  // Validate new password strength
+  const passwordValidation = validatePasswordStrength(newPassword);
+  if (!passwordValidation.valid) {
+    return res.status(400).json({ message: passwordValidation.message });
   }
 
   const [rows] = await db.query('SELECT password_hash FROM users WHERE user_id = ?', [userId]);

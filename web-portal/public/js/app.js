@@ -6,9 +6,223 @@ async function requestJson(url, options = {}) {
   });
   const body = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(body.message || 'Request failed');
+    const errorMessage = body.message || 'Request failed';
+    // Provide more specific error messages based on status code
+    if (response.status === 401) {
+      throw new Error('Your session has expired. Please log in again.');
+    } else if (response.status === 403) {
+      throw new Error('You do not have permission to perform this action.');
+    } else if (response.status === 404) {
+      throw new Error('The requested resource was not found.');
+    } else if (response.status === 429) {
+      throw new Error('Too many requests. Please wait a moment before trying again.');
+    } else if (response.status === 500) {
+      throw new Error('A server error occurred. Please try again later.');
+    }
+    throw new Error(errorMessage);
   }
   return body;
+}
+
+// Real-time form validation
+function validateField(field, value) {
+  const errors = {};
+  
+  if (field === 'username') {
+    if (!value || value.trim().length < 3) {
+      errors.username = 'Username must be at least 3 characters.';
+    }
+  }
+  
+  if (field === 'email') {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value)) {
+      errors.email = 'Please enter a valid email address.';
+    }
+  }
+  
+  if (field === 'password') {
+    if (!value || value.length < 12) {
+      errors.password = 'Password must be at least 12 characters.';
+    }
+  }
+  
+  if (field === 'phoneNumber') {
+    const phoneRegex = /^\d{11}$/;
+    if (!phoneRegex.test(value)) {
+      errors.phoneNumber = 'Please enter a valid 11-digit phone number.';
+    }
+  }
+  
+  return errors;
+}
+
+function showFieldError(fieldId, message) {
+  const field = document.getElementById(fieldId);
+  if (!field) return;
+  
+  let errorElement = document.getElementById(`${fieldId}-error`);
+  if (!errorElement) {
+    errorElement = document.createElement('div');
+    errorElement.id = `${fieldId}-error`;
+    errorElement.className = 'field-error';
+    errorElement.style.color = '#dc2626';
+    errorElement.style.fontSize = '0.875rem';
+    errorElement.style.marginTop = '0.25rem';
+    field.parentNode.appendChild(errorElement);
+  }
+  
+  errorElement.textContent = message;
+  field.style.borderColor = '#dc2626';
+}
+
+function clearFieldError(fieldId) {
+  const field = document.getElementById(fieldId);
+  if (!field) return;
+  
+  const errorElement = document.getElementById(`${fieldId}-error`);
+  if (errorElement) {
+    errorElement.remove();
+  }
+  field.style.borderColor = '';
+}
+
+// Toast Notification System
+function showToast(message, type = 'info', duration = 5000) {
+  const container = document.getElementById('toast-container') || createToastContainer();
+  
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  
+  const icons = {
+    success: '✓',
+    error: '✕',
+    warning: '⚠',
+    info: 'ℹ'
+  };
+  
+  toast.innerHTML = `
+    <span class="toast-icon">${icons[type] || icons.info}</span>
+    <span class="toast-message">${message}</span>
+    <button class="toast-close" aria-label="Close notification">×</button>
+  `;
+  
+  container.appendChild(toast);
+  
+  const closeBtn = toast.querySelector('.toast-close');
+  closeBtn.addEventListener('click', () => removeToast(toast));
+  
+  if (duration > 0) {
+    setTimeout(() => removeToast(toast), duration);
+  }
+  
+  return toast;
+}
+
+function createToastContainer() {
+  const container = document.createElement('div');
+  container.id = 'toast-container';
+  container.className = 'toast-container';
+  document.body.appendChild(container);
+  return container;
+}
+
+function removeToast(toast) {
+  toast.classList.add('hiding');
+  toast.addEventListener('animationend', () => {
+    toast.remove();
+  });
+}
+
+// Modal Dialog System
+function showModal(options) {
+  const { title, message, onConfirm, onCancel, confirmText = 'Confirm', cancelText = 'Cancel' } = options;
+  
+  const overlay = document.getElementById('modal-overlay') || createModalOverlay();
+  
+  const modal = overlay.querySelector('.modal') || document.createElement('div');
+  modal.className = 'modal';
+  modal.innerHTML = `
+    <div class="modal-header">${title}</div>
+    <div class="modal-body">${message}</div>
+    <div class="modal-footer">
+      <button class="modal-btn modal-btn-secondary" data-action="cancel">${cancelText}</button>
+      <button class="modal-btn modal-btn-primary" data-action="confirm">${confirmText}</button>
+    </div>
+  `;
+  
+  overlay.appendChild(modal);
+  overlay.classList.add('active');
+  
+  const confirmBtn = modal.querySelector('[data-action="confirm"]');
+  const cancelBtn = modal.querySelector('[data-action="cancel"]');
+  
+  confirmBtn.addEventListener('click', () => {
+    if (onConfirm) onConfirm();
+    hideModal();
+  });
+  
+  cancelBtn.addEventListener('click', () => {
+    if (onCancel) onCancel();
+    hideModal();
+  });
+  
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) {
+      if (onCancel) onCancel();
+      hideModal();
+    }
+  });
+  
+  document.addEventListener('keydown', handleEscape);
+  
+  return { confirm: confirmBtn, cancel: cancelBtn };
+}
+
+function createModalOverlay() {
+  const overlay = document.createElement('div');
+  overlay.id = 'modal-overlay';
+  overlay.className = 'modal-overlay';
+  document.body.appendChild(overlay);
+  return overlay;
+}
+
+function hideModal() {
+  const overlay = document.getElementById('modal-overlay');
+  if (overlay) {
+    overlay.classList.remove('active');
+    document.removeEventListener('keydown', handleEscape);
+  }
+}
+
+function handleEscape(e) {
+  if (e.key === 'Escape') {
+    hideModal();
+  }
+}
+
+// Skeleton Loader Helpers
+function showSkeletonLoader(containerId, count = 3) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  
+  container.innerHTML = '';
+  
+  for (let i = 0; i < count; i++) {
+    const skeleton = document.createElement('div');
+    skeleton.className = 'skeleton-card';
+    skeleton.innerHTML = `
+      <div class="skeleton skeleton-title"></div>
+      <div class="skeleton skeleton-text"></div>
+      <div class="skeleton skeleton-text"></div>
+      <div class="skeleton skeleton-text" style="width: 40%"></div>
+    `;
+    container.appendChild(skeleton);
+  }
+}
+
+function hideSkeletonLoader(containerId) {
+  // Content will be replaced by actual data
 }
 
 function showMessage(selector, message, type = 'info') {
@@ -151,10 +365,14 @@ async function initEquipmentPage() {
 
   if (!list) return;
 
-  async function loadItems(search = '') {
+  async function loadItems(search = '', category = '') {
     hideMessage(feedback);
+    showSkeletonLoader('equipment-list', 3);
     try {
-      const query = search ? `?search=${encodeURIComponent(search)}` : '';
+      const params = new URLSearchParams();
+      if (search) params.append('search', search);
+      if (category) params.append('category', category);
+      const query = params.toString() ? `?${params.toString()}` : '';
       const payload = await requestJson(`/api/equipment${query}`);
       list.innerHTML = payload.equipment.map(item => `
         <article class="equipment-card">
@@ -198,7 +416,23 @@ async function initEquipmentPage() {
     }
   }
 
-  button?.addEventListener('click', () => loadItems(searchInput.value));
+  const categoryFilter = document.querySelector('#category-filter');
+  const clearFilters = document.querySelector('#clear-filters');
+
+  button?.addEventListener('click', () => loadItems(searchInput.value, categoryFilter.value));
+  clearFilters?.addEventListener('click', () => {
+    searchInput.value = '';
+    categoryFilter.value = '';
+    loadItems();
+  });
+  
+  // Allow Enter key to trigger search
+  searchInput?.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      loadItems(searchInput.value, categoryFilter.value);
+    }
+  });
+
   await loadItems();
 }
 

@@ -8,11 +8,12 @@
   <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body data-page="login">
+  <a href="#main-content" class="skip-to-content">Skip to main content</a>
   <header class="site-header">
     <div class="brand">BorrowIT</div>
   </header>
 
-  <main class="login-container">
+  <main class="login-container" id="main-content">
     <div class="login-layout">
       <div class="login-info">
         <h1>BorrowIT Equipment Portal</h1>
@@ -34,15 +35,17 @@
         <section class="form-card login-form">
           <h2>User Sign In</h2>
           <p>Enter your credentials to access the portal.</p>
-          <div id="login-feedback" class="status-message"></div>
-          <form id="login-form">
-            <label>User ID
-              <input name="username" type="text" required>
+          <div id="login-feedback" class="status-message" role="alert" aria-live="polite" aria-atomic="true"></div>
+          <form id="login-form" aria-label="User login form">
+            <label for="username">User ID
+              <input id="username" name="username" type="text" required autocomplete="username" aria-required="true" aria-describedby="username-hint">
+              <span id="username-hint" class="field-hint">Enter your User ID</span>
             </label>
-            <label>Password
-              <input name="password" type="password" required>
+            <label for="password">Password
+              <input id="password" name="password" type="password" required autocomplete="current-password" aria-required="true" aria-describedby="password-hint">
+              <span id="password-hint" class="field-hint">Enter your password</span>
             </label>
-            <button type="submit">Login</button>
+            <button type="submit" aria-label="Login to your account">Login</button>
           </form>
           <p class="privacy-notice">By clicking the login button, you recognize the right of BorrowIT to process your information in accordance with applicable privacy policies.</p>
         </section>

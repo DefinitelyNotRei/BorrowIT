@@ -8,11 +8,12 @@
   <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body data-page="admin-login">
+  <a href="#main-content" class="skip-to-content">Skip to main content</a>
   <header class="site-header">
     <div class="brand">BorrowIT Admin Portal</div>
   </header>
 
-  <main class="login-container">
+  <main class="login-container" id="main-content">
     <div class="login-layout">
       <div class="login-info">
         <h1>BorrowIT Administration</h1>
@@ -34,15 +35,17 @@
         <section class="form-card login-form">
           <h2>Admin Sign In</h2>
           <p>Enter your admin credentials to access the portal.</p>
-          <div id="login-feedback" class="status-message"></div>
-          <form id="login-form">
-            <label>Admin Username
-              <input name="username" type="text" required>
+          <div id="login-feedback" class="status-message" role="alert" aria-live="polite" aria-atomic="true"></div>
+          <form id="login-form" aria-label="Admin login form">
+            <label for="admin-username">Admin Username
+              <input id="admin-username" name="username" type="text" required autocomplete="username" aria-required="true" aria-describedby="admin-username-hint">
+              <span id="admin-username-hint" class="field-hint">Enter your admin username</span>
             </label>
-            <label>Password
-              <input name="password" type="password" required>
+            <label for="admin-password">Password
+              <input id="admin-password" name="password" type="password" required autocomplete="current-password" aria-required="true" aria-describedby="admin-password-hint">
+              <span id="admin-password-hint" class="field-hint">Enter your password</span>
             </label>
-            <button type="submit">Login</button>
+            <button type="submit" aria-label="Login to admin portal">Login</button>
           </form>
           <p class="privacy-notice">By clicking the login button, you recognize the right of BorrowIT to process your information in accordance with applicable privacy policies.</p>
         </section>

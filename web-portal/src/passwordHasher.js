@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const zxcvbn = require('zxcvbn');
 
 const ITERATIONS = 65536;
 const KEY_BYTES = 32;
@@ -29,7 +30,41 @@ function verifyPassword(password, storedHash) {
   return crypto.timingSafeEqual(expectedHash, actualHash);
 }
 
+function validatePasswordStrength(password) {
+  const minLength = parseInt(process.env.PASSWORD_MIN_LENGTH) || 12;
+  
+  if (!password || password.length < minLength) {
+    return {
+      valid: false,
+      message: `Password must be at least ${minLength} characters long.`
+    };
+  }
+
+  const result = zxcvbn(password);
+  
+  if (result.score < 3) {
+    return {
+      valid: false,
+      message: 'Password is too weak. Please use a stronger password with a mix of letters, numbers, and symbols.'
+    };
+  }
+
+  if (result.sequence && result.sequence.length > 0) {
+    return {
+      valid: false,
+      message: 'Password contains common patterns or sequences. Please choose a more unique password.'
+    };
+  }
+
+  return {
+    valid: true,
+    score: result.score,
+    message: 'Password strength is acceptable.'
+  };
+}
+
 module.exports = {
   hashPassword,
-  verifyPassword
+  verifyPassword,
+  validatePasswordStrength
 };
