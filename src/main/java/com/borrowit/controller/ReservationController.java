@@ -21,6 +21,11 @@ public class ReservationController {
         return reservationService.createReservation(userId, equipmentId, quantity);
     }
 
+    public int createReservation(int userId, int equipmentId, int quantity, String remarks)
+            throws ValidationException, ServiceException {
+        return reservationService.createReservation(userId, equipmentId, quantity, remarks);
+    }
+
     public boolean approveReservation(int reservationId) throws ValidationException, ServiceException {
         return reservationService.approveReservation(reservationId);
     }

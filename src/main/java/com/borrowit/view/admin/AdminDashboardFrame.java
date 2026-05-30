@@ -303,23 +303,14 @@ public class AdminDashboardFrame extends Stage {
         refreshButton.getStyleClass().add("secondary-button");
         Button approveButton = new Button("Approve");
         approveButton.getStyleClass().add("primary-button");
-        Button approveCustomButton = new Button("Approve (Custom Days)");
-        approveCustomButton.getStyleClass().add("primary-button");
         Button declineButton = new Button("Decline");
         declineButton.getStyleClass().add("danger-button");
-        Button setDueDateButton = new Button("Set Due Date");
-        setDueDateButton.getStyleClass().add("secondary-button");
-        Button returnedButton = new Button("Mark Returned");
-        returnedButton.getStyleClass().add("secondary-button");
 
         refreshButton.setOnAction(event -> loadReservations());
         approveButton.setOnAction(event -> approveSelectedReservation());
-        approveCustomButton.setOnAction(event -> approveSelectedReservationWithDueDate());
         declineButton.setOnAction(event -> declineSelectedReservation());
-        setDueDateButton.setOnAction(event -> setDueDateForSelectedReservation());
-        returnedButton.setOnAction(event -> returnSelectedReservation(reservationTable));
 
-        HBox actionBar = new HBox(10, refreshButton, approveButton, approveCustomButton, declineButton, setDueDateButton, returnedButton);
+        HBox actionBar = new HBox(10, refreshButton, approveButton, declineButton);
         actionBar.setAlignment(Pos.CENTER_LEFT);
         actionBar.setPadding(new Insets(10));
 
@@ -415,7 +406,7 @@ public class AdminDashboardFrame extends Stage {
             loadUsers();
         });
         createAccountButton.setOnAction(event -> {
-            RegisterFrame registerFrame = new RegisterFrame(this, true);
+            RegisterFrame registerFrame = new RegisterFrame(this);
             registerFrame.setOnHidden(e -> loadUsers());
             registerFrame.show();
         });
@@ -674,11 +665,16 @@ public class AdminDashboardFrame extends Stage {
             GuiUtils.showInfo(this, "Select a reservation first.");
             return;
         }
-        if (!GuiUtils.confirm(this, "Approve selected reservation with default 7 days?")) {
+        if (!GuiUtils.confirm(this, "Approve selected reservation?")) {
             return;
         }
         try {
-            reservationController.approveReservation(selected.getReservationId());
+            Integer requestedDays = parseRequestedDays(selected.getRemarks());
+            if (requestedDays != null) {
+                reservationController.approveReservationWithDueDate(selected.getReservationId(), requestedDays);
+            } else {
+                reservationController.approveReservation(selected.getReservationId());
+            }
             GuiUtils.showInfo(this, "Reservation approved.");
             refreshAll();
         } catch (ValidationException | ServiceException exception) {
@@ -686,38 +682,19 @@ public class AdminDashboardFrame extends Stage {
         }
     }
 
-    private void approveSelectedReservationWithDueDate() {
-        Reservation selected = reservationTable.getSelectionModel().getSelectedItem();
-        if (selected == null) {
-            GuiUtils.showInfo(this, "Select a reservation first.");
-            return;
+    private Integer parseRequestedDays(String remarks) {
+        if (remarks == null) {
+            return null;
         }
-
-        Dialog<Integer> dialog = new Dialog<>();
-        dialog.initOwner(this);
-        dialog.setTitle("Approve with Custom Due Date");
-        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-
-        Spinner<Integer> daysSpinner = new Spinner<>(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 7, 7));
-        GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(20));
-        grid.add(new Label("Borrow Days (1-7):"), 0, 0);
-        grid.add(daysSpinner, 1, 0);
-
-        dialog.getDialogPane().setContent(grid);
-        dialog.setResultConverter(button -> button == ButtonType.OK ? daysSpinner.getValue() : null);
-
-        dialog.showAndWait().ifPresent(days -> {
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("Requested days:\s*(\\d+)", java.util.regex.Pattern.CASE_INSENSITIVE);
+        java.util.regex.Matcher matcher = pattern.matcher(remarks);
+        if (matcher.find()) {
             try {
-                reservationController.approveReservationWithDueDate(selected.getReservationId(), days);
-                GuiUtils.showInfo(this, "Reservation approved for " + days + " days.");
-                refreshAll();
-            } catch (ValidationException | ServiceException exception) {
-                GuiUtils.showError(this, exception);
+                return Integer.valueOf(matcher.group(1));
+            } catch (NumberFormatException ignored) {
             }
-        });
+        }
+        return null;
     }
 
     private void declineSelectedReservation() {
@@ -738,45 +715,6 @@ public class AdminDashboardFrame extends Stage {
                 reservationController.declineReservation(selected.getReservationId(), reason);
                 GuiUtils.showInfo(this, "Reservation declined.");
                 refreshAll();
-            } catch (ValidationException | ServiceException exception) {
-                GuiUtils.showError(this, exception);
-            }
-        });
-    }
-
-    private void setDueDateForSelectedReservation() {
-        Reservation selected = reservationTable.getSelectionModel().getSelectedItem();
-        if (selected == null) {
-            GuiUtils.showInfo(this, "Select a reservation first.");
-            return;
-        }
-
-        Dialog<Integer> dialog = new Dialog<>();
-        dialog.initOwner(this);
-        dialog.setTitle("Set Due Date");
-        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-
-        Spinner<Integer> daysSpinner = new Spinner<>(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 7, 1));
-        GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(20));
-        grid.add(new Label("Due in (days)"), 0, 0);
-        grid.add(daysSpinner, 1, 0);
-
-        dialog.getDialogPane().setContent(grid);
-        dialog.setResultConverter(button -> button == ButtonType.OK ? daysSpinner.getValue() : null);
-
-        dialog.showAndWait().ifPresent(days -> {
-            LocalDateTime dueDate = LocalDateTime.now().plusDays(days);
-            try {
-                boolean success = reservationController.setDueDate(selected.getReservationId(), dueDate);
-                if (success) {
-                    GuiUtils.showInfo(this, "Due date set successfully.");
-                    refreshAll();
-                } else {
-                    GuiUtils.showInfo(this, "Failed to set due date. Make sure the reservation is approved.");
-                }
             } catch (ValidationException | ServiceException exception) {
                 GuiUtils.showError(this, exception);
             }
@@ -1047,13 +985,13 @@ public class AdminDashboardFrame extends Stage {
         try {
             List<Equipment> equipment = equipmentController.getAllEquipment();
             List<Reservation> reservations = reservationController.getAllReservations();
-            List<Reservation> overdue = reservationController.getOverdueReservations();
+            List<Reservation> borrowed = reservationController.getCurrentlyBorrowedReservations();
             long pendingCount = reservations.stream()
                     .filter(reservation -> reservation.getStatus() == ReservationStatus.PENDING)
                     .count();
             totalEquipmentLabel.setText(String.valueOf(equipment.size()));
             pendingReservationsLabel.setText(String.valueOf(pendingCount));
-            overdueReservationsLabel.setText(String.valueOf(overdue.size()));
+            overdueReservationsLabel.setText(String.valueOf(borrowed.size()));
         } catch (ServiceException exception) {
             // ignore
         }
@@ -1072,13 +1010,13 @@ public class AdminDashboardFrame extends Stage {
         try {
             List<Equipment> equipment = equipmentController.getAllEquipment();
             List<Reservation> reservations = reservationController.getAllReservations();
-            List<Reservation> overdue = reservationController.getOverdueReservations();
+            List<Reservation> borrowed = reservationController.getCurrentlyBorrowedReservations();
             long pendingCount = reservations.stream()
                     .filter(reservation -> reservation.getStatus() == ReservationStatus.PENDING)
                     .count();
             totalEquipmentLabel.setText(String.valueOf(equipment.size()));
             pendingReservationsLabel.setText(String.valueOf(pendingCount));
-            overdueReservationsLabel.setText(String.valueOf(overdue.size()));
+            overdueReservationsLabel.setText(String.valueOf(borrowed.size()));
         } catch (ServiceException exception) {
             GuiUtils.showError(this, exception);
         }

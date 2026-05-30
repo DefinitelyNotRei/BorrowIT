@@ -9,7 +9,6 @@ import com.borrowit.controller.AuthController;
 import com.borrowit.model.User;
 import com.borrowit.service.ServiceException;
 import com.borrowit.service.ValidationException;
-import com.borrowit.view.user.UserDashboardFrame;
 import com.borrowit.view.util.GuiUtils;
 
 import javafx.concurrent.Task;
@@ -61,21 +60,15 @@ public class RegisterFrame extends Stage {
     private final Label errorLabel = new Label();
 
     private final Map<String, String[]> coursesByBranch = new HashMap<>();
-    private final boolean isAdminMode;
 
     public RegisterFrame() {
-        this(null, false);
+        this(null);
     }
 
-    public RegisterFrame(Stage owner, boolean isAdminMode) {
-        this.isAdminMode = isAdminMode;
-        setTitle(isAdminMode ? "BorrowIT - Create User Account" : "BorrowIT - Register");
+    public RegisterFrame(Stage owner) {
+        setTitle("BorrowIT - Create User Account");
         setMaximized(true);
-        setOnCloseRequest(event -> {
-            if (!isAdminMode) {
-                new UserLoginFrame().show();
-            }
-        });
+        setOnCloseRequest(event -> close());
         centerOnScreen();
         if (owner != null) {
             initOwner(owner);
@@ -85,7 +78,7 @@ public class RegisterFrame extends Stage {
         initializeCourseData();
         initializeFormFields();
 
-        Label titleLabel = new Label(isAdminMode ? "Create User Account" : "Create User Account");
+        Label titleLabel = new Label("Create User Account");
         titleLabel.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
 
         errorLabel.setWrapText(true);
@@ -124,7 +117,7 @@ public class RegisterFrame extends Stage {
         formPanel.add(passwordHintLabel, 1, 12);
         branchField.setOnAction(event -> updateCourseField());
 
-        registerButton.setText(isAdminMode ? "Create User" : "Confirm");
+        registerButton.setText("Create User");
         registerButton.getStyleClass().add("success-button");
         registerButton.setDefaultButton(true);
         backButton.setText("Cancel");
@@ -132,14 +125,7 @@ public class RegisterFrame extends Stage {
         backButton.setCancelButton(true);
 
         registerButton.setOnAction(event -> register());
-        backButton.setOnAction(event -> {
-            if (isAdminMode) {
-                close();
-            } else {
-                new UserLoginFrame().show();
-                close();
-            }
-        });
+        backButton.setOnAction(event -> close());
 
         HBox buttonPanel = new HBox(10, backButton, registerButton);
         buttonPanel.setAlignment(Pos.CENTER_RIGHT);
@@ -479,14 +465,8 @@ public class RegisterFrame extends Stage {
         task.setOnRunning(event -> setWorking(true, "Creating account..."));
         task.setOnSucceeded(event -> {
             setWorking(false, "Account created successfully.");
-            User user = task.getValue();
             GuiUtils.showInfo(this, "Account created successfully.");
-            if (isAdminMode) {
-                close();
-            } else {
-                new UserDashboardFrame(user).show();
-                close();
-            }
+            close();
             clearSensitive(password);
             clearSensitive(confirmation);
             passwordField.clear();

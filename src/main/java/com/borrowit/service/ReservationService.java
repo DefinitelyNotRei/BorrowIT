@@ -23,6 +23,11 @@ public class ReservationService {
 
     public int createReservation(int userId, int equipmentId, int quantity)
             throws ValidationException, ServiceException {
+        return createReservation(userId, equipmentId, quantity, "Requested by borrower.");
+    }
+
+    public int createReservation(int userId, int equipmentId, int quantity, String remarks)
+            throws ValidationException, ServiceException {
         if (userId <= 0) {
             throw new ValidationException("A signed-in user is required.");
         }
@@ -48,7 +53,9 @@ public class ReservationService {
             }
 
             Reservation reservation = new Reservation(userId, equipmentId, quantity);
-            reservation.setRemarks("Requested by borrower.");
+            reservation.setRemarks(remarks == null || remarks.isBlank()
+                    ? "Requested by borrower."
+                    : remarks.trim());
             return reservationDao.create(reservation);
         } catch (SQLException exception) {
             throw new ServiceException("Unable to create reservation.", exception);
