@@ -49,6 +49,10 @@ public class ReservationController {
         return reservationService.setDueDate(reservationId, dueDate);
     }
 
+    public boolean liftPenalty(int reservationId) throws ValidationException, ServiceException {
+        return reservationService.liftPenalty(reservationId);
+    }
+
     public List<Reservation> getAllReservations() throws ServiceException {
         return reservationService.getAllReservations();
     }
@@ -63,5 +67,9 @@ public class ReservationController {
 
     public List<Reservation> getOverdueReservations() throws ServiceException {
         return reservationService.getOverdueReservations();
+    }
+
+    public List<Reservation> getCurrentlyBorrowedReservations() throws ServiceException {
+        return reservationService.getCurrentlyBorrowedReservations();
     }
 }

@@ -127,6 +127,15 @@ public class ReservationService {
         }
     }
 
+    public boolean liftPenalty(int reservationId) throws ValidationException, ServiceException {
+        validateReservationId(reservationId);
+        try {
+            return reservationDao.clearPenalty(reservationId);
+        } catch (SQLException exception) {
+            throw new ServiceException("Unable to lift penalty.", exception);
+        }
+    }
+
     public List<Reservation> getAllReservations() throws ServiceException {
         try {
             return reservationDao.findAllWithDetails();
@@ -156,6 +165,14 @@ public class ReservationService {
             return reservationDao.findOverdue();
         } catch (SQLException exception) {
             throw new ServiceException("Unable to load overdue reservations.", exception);
+        }
+    }
+
+    public List<Reservation> getCurrentlyBorrowedReservations() throws ServiceException {
+        try {
+            return reservationDao.findCurrentlyBorrowed();
+        } catch (SQLException exception) {
+            throw new ServiceException("Unable to load currently borrowed reservations.", exception);
         }
     }
 

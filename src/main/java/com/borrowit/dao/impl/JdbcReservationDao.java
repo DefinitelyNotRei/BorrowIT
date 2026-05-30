@@ -268,7 +268,7 @@ public class JdbcReservationDao implements ReservationDao {
                     // Check if return is late
                     if (dueDate != null && LocalDateTime.now().isAfter(dueDate)) {
                         isLate = true;
-                        penaltyEndDate = LocalDateTime.now().plusDays(7);
+                        penaltyEndDate = LocalDateTime.now().plusDays(3);
                     }
                 }
 
@@ -350,6 +350,15 @@ public class JdbcReservationDao implements ReservationDao {
     }
 
     @Override
+    public List<Reservation> findCurrentlyBorrowed() throws SQLException {
+        String sql = SELECT_WITH_DETAILS + """
+                 WHERE r.status = 'APPROVED'
+                 ORDER BY r.due_date ASC
+                """;
+        return queryReservations(sql);
+    }
+
+    @Override
     public List<Reservation> findOverdue() throws SQLException {
         String sql = SELECT_WITH_DETAILS + """
                  WHERE r.status = 'APPROVED' AND r.due_date < NOW()
@@ -397,6 +406,20 @@ public class JdbcReservationDao implements ReservationDao {
 
     private LocalDateTime toLocalDateTime(Timestamp timestamp) {
         return timestamp == null ? null : timestamp.toLocalDateTime();
+    }
+
+    @Override
+    public boolean clearPenalty(int reservationId) throws SQLException {
+        String sql = """
+                UPDATE reservations
+                SET penalty_end_date = NULL
+                WHERE reservation_id = ?
+                """;
+        try (Connection connection = DatabaseConnection.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, reservationId);
+            return statement.executeUpdate() > 0;
+        }
     }
 
     @Override

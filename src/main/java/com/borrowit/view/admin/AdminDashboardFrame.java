@@ -149,7 +149,7 @@ public class AdminDashboardFrame extends Stage {
                 new javafx.scene.control.Tab("Dashboard", buildDashboardTab()),
                 new javafx.scene.control.Tab("Equipment", buildEquipmentTab()),
                 new javafx.scene.control.Tab("Reservations", buildReservationsTab()),
-                new javafx.scene.control.Tab("Overdue", buildOverdueTab()),
+                new javafx.scene.control.Tab("Currently Borrowed", buildOverdueTab()),
                 new javafx.scene.control.Tab("Borrower Records", buildBorrowerRecordsTab()),
                 new javafx.scene.control.Tab("Users", buildUsersTab())
         );
@@ -171,7 +171,7 @@ public class AdminDashboardFrame extends Stage {
 
         VBox totalCard = metricCard("Total Equipment", totalEquipmentLabel);
         VBox pendingCard = metricCard("Pending Reservations", pendingReservationsLabel);
-        VBox overdueCard = metricCard("Overdue Equipment", overdueReservationsLabel);
+        VBox overdueCard = metricCard("Borrowed Equipment", overdueReservationsLabel);
 
         HBox dashboard = new HBox(20, totalCard, pendingCard, overdueCard);
         dashboard.setPadding(new Insets(20));
@@ -354,9 +354,12 @@ public class AdminDashboardFrame extends Stage {
     private BorderPane buildBorrowerRecordsTab() {
         Button refreshButton = new Button("Refresh");
         refreshButton.getStyleClass().add("secondary-button");
+        Button liftPenaltyButton = new Button("Lift Penalty");
+        liftPenaltyButton.getStyleClass().add("success-button");
         refreshButton.setOnAction(event -> loadBorrowerRecords());
+        liftPenaltyButton.setOnAction(event -> liftPenaltyForSelectedBorrowerRecord());
 
-        HBox actionBar = new HBox(10, refreshButton);
+        HBox actionBar = new HBox(10, refreshButton, liftPenaltyButton);
         actionBar.setAlignment(Pos.CENTER_LEFT);
         actionBar.setPadding(new Insets(10));
 
@@ -375,10 +378,13 @@ public class AdminDashboardFrame extends Stage {
         TableColumn<Reservation, ?> c3 = makeColumn("Equipment", 140, Reservation::getEquipmentName);
         TableColumn<Reservation, ?> c4 = makeColumn("Asset Tag", 110, Reservation::getAssetTag);
         TableColumn<Reservation, ?> c5 = makeColumn("Qty", 70, Reservation::getQuantity);
-        TableColumn<Reservation, ?> c6 = makeColumn("Status", 110, reservation -> reservation.getStatus().name());
+        TableColumn<Reservation, ?> c6 = makeColumn("Status", 140, Reservation::getStatusLabel);
         TableColumn<Reservation, ?> c7 = makeColumn("Due", 130, reservation -> DateTimeUtils.format(reservation.getDueDate()));
         TableColumn<Reservation, ?> c8 = makeColumn("Returned", 130, reservation -> DateTimeUtils.format(reservation.getReturnedAt()));
         TableColumn<Reservation, ?> c9 = makeColumn("Overdue", 90, reservation -> {
+            if (reservation.getStatus() == ReservationStatus.RETURNED && reservation.isLate()) {
+                return "Returned and Overdue";
+            }
             if (reservation.getDueDate() == null) {
                 return "No";
             }
@@ -541,9 +547,9 @@ public class AdminDashboardFrame extends Stage {
     }
 
     private void loadOverdue() {
-        setStatus("Loading overdue list...", true);
+        setStatus("Loading currently borrowed items...", true);
         try {
-            overdueItems.setAll(reservationController.getOverdueReservations());
+            overdueItems.setAll(reservationController.getCurrentlyBorrowedReservations());
             refreshDashboardQuietly();
         } catch (ServiceException exception) {
             GuiUtils.showError(this, exception);
@@ -795,6 +801,32 @@ public class AdminDashboardFrame extends Stage {
         }
     }
 
+    private void liftPenaltyForSelectedBorrowerRecord() {
+        Reservation selected = borrowerRecordsTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            GuiUtils.showInfo(this, "Select a borrower record first.");
+            return;
+        }
+        if (selected.getStatus() != ReservationStatus.RETURNED || !selected.isLate()) {
+            GuiUtils.showInfo(this, "Only returned overdue records can have their penalty lifted.");
+            return;
+        }
+        if (!GuiUtils.confirm(this, "Lift the penalty for the selected returned overdue reservation?")) {
+            return;
+        }
+        try {
+            boolean success = reservationController.liftPenalty(selected.getReservationId());
+            if (success) {
+                GuiUtils.showInfo(this, "Penalty lifted successfully.");
+            } else {
+                GuiUtils.showInfo(this, "No penalty was found to lift for this reservation.");
+            }
+            refreshAll();
+        } catch (ValidationException | ServiceException exception) {
+            GuiUtils.showError(this, exception);
+        }
+    }
+
     private void removeSelectedUser() {
         User selected = usersTable.getSelectionModel().getSelectedItem();
         if (selected == null) {
@@ -853,7 +885,7 @@ public class AdminDashboardFrame extends Stage {
                 TableColumn<Reservation, ?> c2 = makeColumn("Equipment", 170, Reservation::getEquipmentName);
                 TableColumn<Reservation, ?> c3 = makeColumn("Asset Tag", 110, Reservation::getAssetTag);
                 TableColumn<Reservation, ?> c4 = makeColumn("Qty", 70, Reservation::getQuantity);
-                TableColumn<Reservation, ?> c5 = makeColumn("Status", 100, reservation -> reservation.getStatus().name());
+                TableColumn<Reservation, ?> c5 = makeColumn("Status", 140, Reservation::getStatusLabel);
                 TableColumn<Reservation, ?> c6 = makeColumn("Requested", 130, reservation -> DateTimeUtils.format(reservation.getRequestDate()));
                 TableColumn<Reservation, ?> c7 = makeColumn("Due Date", 140, reservation -> DateTimeUtils.format(reservation.getDueDate()));
                 TableColumn<Reservation, ?> c8 = makeColumn("Return Date", 140, reservation -> DateTimeUtils.format(reservation.getReturnDate()));

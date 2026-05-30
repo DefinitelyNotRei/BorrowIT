@@ -146,6 +146,13 @@ public class Reservation {
         return late;
     }
 
+    public String getStatusLabel() {
+        if (status == ReservationStatus.RETURNED && late) {
+            return "Returned and Overdue";
+        }
+        return status == null ? "" : status.name();
+    }
+
     public void setLate(boolean late) {
         this.late = late;
     }

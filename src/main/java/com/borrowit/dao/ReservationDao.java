@@ -30,7 +30,11 @@ public interface ReservationDao {
 
     List<Reservation> findCurrentBorrowedByUser(int userId) throws SQLException;
 
+    List<Reservation> findCurrentlyBorrowed() throws SQLException;
+
     List<Reservation> findOverdue() throws SQLException;
+
+    boolean clearPenalty(int reservationId) throws SQLException;
 
     boolean checkUserPenalty(int userId) throws SQLException;
 }

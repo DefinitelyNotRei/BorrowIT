@@ -272,7 +272,7 @@ public class UserDashboardFrame extends Stage {
         TableColumn<Reservation, ?> h2 = createReservationColumn("Equipment", 140, reservation -> new SimpleStringProperty(reservation.getEquipmentName()));
         TableColumn<Reservation, ?> h3 = createReservationColumn("Asset Tag", 120, reservation -> new SimpleStringProperty(reservation.getAssetTag()));
         TableColumn<Reservation, ?> h4 = createReservationColumn("Qty", 70, reservation -> new SimpleIntegerProperty(reservation.getQuantity()));
-        TableColumn<Reservation, ?> h5 = createReservationColumn("Status", 100, reservation -> new SimpleStringProperty(reservation.getStatus().name()));
+        TableColumn<Reservation, ?> h5 = createReservationColumn("Status", 130, reservation -> new SimpleStringProperty(reservation.getStatusLabel()));
         TableColumn<Reservation, ?> h6 = createReservationColumn("Requested", 130, reservation -> new SimpleStringProperty(DateTimeUtils.format(reservation.getRequestDate())));
         TableColumn<Reservation, ?> h7 = createReservationColumn("Due Date", 130, reservation -> new SimpleStringProperty(DateTimeUtils.format(reservation.getDueDate())));
         TableColumn<Reservation, ?> h8 = createReservationColumn("Return Date", 130, reservation -> new SimpleStringProperty(DateTimeUtils.format(reservation.getReturnDate())));
