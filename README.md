@@ -75,14 +75,8 @@ SOURCE database/borrowit_modernization_migration.sql;
 
 ## Documentation
 
-- Modernization blueprint: `MODERNIZATION_BLUEPRINT.md`
 - Web API contracts: `web-portal/API-CONTRACTS.md`
 - Web portal notes: `web-portal/README.md`
-
-## Default Test Credentials
-
-- Admin account: username `admin`, password `Admin@123`
-- Student account: username `202511319`, password `GCbalan`
 
 ## Packaged JAR Note
 
